@@ -165,9 +165,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [state.ownerProfile.currentPoints, state.upgradeProposal.totalPointsAfterUpgrade, toast]);
 
 
+  const { 
+    ownerProfile: {
+      currentPoints, ownershipType, maintenanceFee, currentLoanBalance, currentLoanInterestRate, currentLoanTerm
+    },
+    upgradeProposal: {
+      newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate
+    },
+    creditCardRewards: {
+      estimatedAnnualSpend, rewardRate
+    },
+    projectionYears
+  } = state;
+
   useEffect(() => {
     dispatch({ type: 'CALCULATE_ALL' });
-  }, [state.ownerProfile, state.upgradeProposal, state.creditCardRewards.estimatedAnnualSpend, state.creditCardRewards.rewardRate, state.projectionYears]);
+  }, [
+    currentPoints, ownershipType, maintenanceFee, currentLoanBalance, currentLoanInterestRate, currentLoanTerm,
+    newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate,
+    estimatedAnnualSpend, rewardRate, 
+    projectionYears,
+    dispatch
+  ]);
 
   useEffect(() => {
     if ((state.ownerProfile.currentPoints > 0 || (state.upgradeProposal.totalPointsAfterUpgrade || 0) > 0) && state.upgradeProposal.totalPointsAfterUpgrade !== undefined) {
