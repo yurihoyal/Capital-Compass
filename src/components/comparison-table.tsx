@@ -11,7 +11,7 @@ const CLUB_INFLATION = 3;
 
 const ComparisonTable = () => {
     const { state } = useAppContext();
-    const { ownerProfile, upgradeProposal, creditCardRewards } = state;
+    const { ownerProfile, upgradeProposal, creditCardRewards, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
     const currentMonthlyLoan = calculateMonthlyPayment(ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm);
     const newMonthlyLoan = calculateMonthlyPayment(upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm);
@@ -34,14 +34,14 @@ const ComparisonTable = () => {
     const comparisonData: ComparisonItem[] = [
         {
             feature: 'VIP Tier',
-            now: <Badge variant="secondary">{ownerProfile.currentVIPLevel || 'N/A'}</Badge>,
-            new: <Badge className="bg-success hover:bg-success/90 text-success-foreground">{upgradeProposal.projectedVIPLevel || 'N/A'}</Badge>,
+            now: <Badge variant="secondary">{currentVIPLevel || 'N/A'}</Badge>,
+            new: <Badge className="bg-success hover:bg-success/90 text-success-foreground">{projectedVIPLevel || 'N/A'}</Badge>,
         },
         {
             feature: 'Points',
             now: ownerProfile.currentPoints.toLocaleString(),
-            new: (upgradeProposal.totalPointsAfterUpgrade || 0).toLocaleString(),
-            sentiment: getSentiment(ownerProfile.currentPoints, upgradeProposal.totalPointsAfterUpgrade || 0, false)
+            new: (totalPointsAfterUpgrade || 0).toLocaleString(),
+            sentiment: getSentiment(ownerProfile.currentPoints, totalPointsAfterUpgrade || 0, false)
         },
         {
             feature: 'Booking Window',

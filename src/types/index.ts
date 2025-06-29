@@ -11,7 +11,6 @@ export const OwnerProfileSchema = z.object({
   email: z.string().email('Invalid email address.').optional().or(z.literal('')),
   ownershipType: z.enum(ownershipTypes),
   currentPoints: z.coerce.number().min(0),
-  currentVIPLevel: z.string().optional(),
   maintenanceFee: z.coerce.number().min(0),
   currentLoanBalance: z.coerce.number().min(0),
   currentLoanInterestRate: z.coerce.number().min(0).max(100),
@@ -23,8 +22,6 @@ export type OwnerProfile = z.infer<typeof OwnerProfileSchema>;
 export const UpgradeProposalSchema = z.object({
   newPointsAdded: z.coerce.number().min(0),
   convertedDeedsToPoints: z.coerce.number().min(0),
-  totalPointsAfterUpgrade: z.coerce.number().min(0).optional(),
-  projectedVIPLevel: z.string().optional(),
   newLoanAmount: z.coerce.number().min(0),
   newLoanTerm: z.enum([5, 10, 15, 20]),
   newLoanInterestRate: z.coerce.number().min(0).max(100),

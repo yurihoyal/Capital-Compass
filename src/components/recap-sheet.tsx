@@ -8,7 +8,7 @@ import { Separator } from './ui/separator';
 
 const RecapSheet = () => {
     const { state } = useAppContext();
-    const { ownerProfile, upgradeProposal, creditCardRewards, costProjectionData } = state;
+    const { ownerProfile, creditCardRewards, costProjectionData, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
     const handlePrint = () => {
         window.print();
@@ -56,15 +56,15 @@ const RecapSheet = () => {
                         <div className="grid grid-cols-2 gap-8">
                             <div className="space-y-4">
                                 <h3 className="font-headline text-2xl border-b pb-2">Current Ownership</h3>
-                                <p><strong>VIP Tier:</strong> {ownerProfile.currentVIPLevel}</p>
+                                <p><strong>VIP Tier:</strong> {currentVIPLevel}</p>
                                 <p><strong>Points:</strong> {ownerProfile.currentPoints.toLocaleString()}</p>
                                 <p><strong>Ownership Type:</strong> {ownerProfile.ownershipType}</p>
                                 <p><strong>Exit Strategy:</strong> {ownerProfile.ownershipType === 'Deeded' ? 'In Perpetuity' : 'Flexible'}</p>
                             </div>
                             <div className="space-y-4">
                                 <h3 className="font-headline text-2xl border-b pb-2 text-primary">New Proposal</h3>
-                                <p><strong>Projected VIP Tier:</strong> {upgradeProposal.projectedVIPLevel}</p>
-                                <p><strong>Total Points:</strong> {(upgradeProposal.totalPointsAfterUpgrade || 0).toLocaleString()}</p>
+                                <p><strong>Projected VIP Tier:</strong> {projectedVIPLevel}</p>
+                                <p><strong>Total Points:</strong> {(totalPointsAfterUpgrade || 0).toLocaleString()}</p>
                                 <p><strong>Ownership Type:</strong> Club</p>
                                 <p><strong>Exit Strategy:</strong> Flexible</p>
                             </div>

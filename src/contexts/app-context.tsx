@@ -1,10 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { OwnerProfile, UpgradeProposal, CreditCardRewards, OwnerProfileSchema, UpgradeProposalSchema, CreditCardRewardsSchema, ownershipTypes, redemptionTypes } from '@/types';
+import { OwnerProfile, UpgradeProposal, CreditCardRewards, ownershipTypes, redemptionTypes } from '@/types';
 import { getVipTier } from '@/app/actions';
-import { useToast } from "@/hooks/use-toast"
-import { calculateMonthlyPayment, generateCostProjection } from '@/lib/financial';
+import { useToast } from "@/hooks/use-toast";
+import { generateCostProjection } from '@/lib/financial';
 
 const DEEDED_INFLATION = 8;
 const CLUB_INFLATION = 3;
@@ -16,6 +16,9 @@ interface AppState {
   isCalculating: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
   projectionYears: 10 | 20;
+  totalPointsAfterUpgrade: number;
+  currentVIPLevel: string;
+  projectedVIPLevel: string;
 }
 
 const initialOwnerProfile: OwnerProfile = {
@@ -29,7 +32,6 @@ const initialOwnerProfile: OwnerProfile = {
   currentLoanInterestRate: 8.5,
   currentLoanTerm: 5,
   painPoints: [],
-  currentVIPLevel: 'Preferred',
 };
 
 const initialUpgradeProposal: UpgradeProposal = {
@@ -39,30 +41,49 @@ const initialUpgradeProposal: UpgradeProposal = {
   newLoanTerm: 10,
   newLoanInterestRate: 7.5,
   projectedMF: 2500,
-  totalPointsAfterUpgrade: 200000,
-  projectedVIPLevel: 'Preferred',
 };
 
 const initialCreditCardRewards: CreditCardRewards = {
   estimatedAnnualSpend: 10000,
   redemptionType: redemptionTypes[0], // Travel
   rewardRate: 1.5,
-  calculatedSavings: 150,
+  calculatedSavings: 0, // will be calculated
 };
+
+// Calculate derived initial values
+const initialTotalPointsAfterUpgrade = initialOwnerProfile.currentPoints + initialUpgradeProposal.newPointsAdded + initialUpgradeProposal.convertedDeedsToPoints;
+const initialCalculatedSavings = (initialCreditCardRewards.estimatedAnnualSpend * initialCreditCardRewards.rewardRate) / 100;
+const initialCostProjectionData = generateCostProjection(
+    10, // initial projection years
+    initialOwnerProfile.maintenanceFee,
+    initialOwnerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION,
+    initialOwnerProfile.currentLoanBalance,
+    initialOwnerProfile.currentLoanInterestRate,
+    initialOwnerProfile.currentLoanTerm,
+    initialUpgradeProposal.projectedMF,
+    CLUB_INFLATION,
+    initialUpgradeProposal.newLoanAmount,
+    initialUpgradeProposal.newLoanInterestRate,
+    initialUpgradeProposal.newLoanTerm
+);
 
 const initialState: AppState = {
   ownerProfile: initialOwnerProfile,
   upgradeProposal: initialUpgradeProposal,
-  creditCardRewards: initialCreditCardRewards,
+  creditCardRewards: { ...initialCreditCardRewards, calculatedSavings: initialCalculatedSavings },
   isCalculating: false,
-  costProjectionData: [],
+  costProjectionData: initialCostProjectionData,
   projectionYears: 10,
+  totalPointsAfterUpgrade: initialTotalPointsAfterUpgrade,
+  currentVIPLevel: 'Preferred',
+  projectedVIPLevel: 'Preferred',
 };
 
 type Action =
   | { type: 'UPDATE_OWNER_PROFILE'; payload: Partial<OwnerProfile> }
   | { type: 'UPDATE_UPGRADE_PROPOSAL'; payload: Partial<UpgradeProposal> }
   | { type: 'UPDATE_CREDIT_CARD_REWARDS'; payload: Partial<CreditCardRewards> }
+  | { type: 'SET_VIP_LEVELS'; payload: { current: string, projected: string } }
   | { type: 'SET_IS_CALCULATING'; payload: boolean }
   | { type: 'RESET_STATE' }
   | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 20 }
@@ -79,39 +100,22 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, upgradeProposal: { ...state.upgradeProposal, ...action.payload } };
     case 'UPDATE_CREDIT_CARD_REWARDS':
         return { ...state, creditCardRewards: { ...state.creditCardRewards, ...action.payload } };
+    case 'SET_VIP_LEVELS':
+        return { ...state, currentVIPLevel: action.payload.current, projectedVIPLevel: action.payload.projected };
     case 'SET_IS_CALCULATING':
       return { ...state, isCalculating: action.payload };
     case 'RESET_STATE':
-        return {
-            ...initialState,
-            costProjectionData: generateCostProjection(
-                initialState.projectionYears,
-                initialState.ownerProfile.maintenanceFee,
-                initialState.ownerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION,
-                initialState.ownerProfile.currentLoanBalance,
-                initialState.ownerProfile.currentLoanInterestRate,
-                initialState.ownerProfile.currentLoanTerm,
-                initialState.upgradeProposal.projectedMF,
-                CLUB_INFLATION,
-                initialState.upgradeProposal.newLoanAmount,
-                initialState.upgradeProposal.newLoanInterestRate,
-                initialState.upgradeProposal.newLoanTerm
-            )
-        };
+        return { ...initialState };
     case 'SET_PROJECTION_YEARS':
         return { ...state, projectionYears: action.payload };
     case 'CALCULATE_ALL': {
         const { ownerProfile, upgradeProposal, creditCardRewards, projectionYears } = state;
         
-        // CC Savings
         const calculatedSavings = (creditCardRewards.estimatedAnnualSpend * creditCardRewards.rewardRate) / 100;
-
-        // Upgrade points
         const totalPointsAfterUpgrade = ownerProfile.currentPoints + upgradeProposal.newPointsAdded + upgradeProposal.convertedDeedsToPoints;
         
-        // Financial Projections
         const currentMfInflation = ownerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION;
-        const newMfInflation = CLUB_INFLATION; // All new proposals are Club
+        const newMfInflation = CLUB_INFLATION;
         
         const costProjectionData = generateCostProjection(
             projectionYears,
@@ -121,10 +125,7 @@ function appReducer(state: AppState, action: Action): AppState {
 
         return {
             ...state,
-            upgradeProposal: {
-                ...state.upgradeProposal,
-                totalPointsAfterUpgrade,
-            },
+            totalPointsAfterUpgrade,
             creditCardRewards: {
                 ...state.creditCardRewards,
                 calculatedSavings,
@@ -142,15 +143,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   const calculateVipTiers = useCallback(async () => {
+    if (state.totalPointsAfterUpgrade === undefined) return;
     dispatch({ type: 'SET_IS_CALCULATING', payload: true });
     try {
       const [currentVip, projectedVip] = await Promise.all([
         getVipTier(state.ownerProfile.currentPoints),
-        getVipTier(state.upgradeProposal.totalPointsAfterUpgrade || 0)
+        getVipTier(state.totalPointsAfterUpgrade)
       ]);
       
-      dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: { currentVIPLevel: currentVip.vipTier } });
-      dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: { projectedVIPLevel: projectedVip.vipTier } });
+      dispatch({ type: 'SET_VIP_LEVELS', payload: { current: currentVip.vipTier, projected: projectedVip.vipTier } });
 
     } catch (error) {
         console.error("Error calculating VIP tiers:", error);
@@ -162,7 +163,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } finally {
       dispatch({ type: 'SET_IS_CALCULATING', payload: false });
     }
-  }, [state.ownerProfile.currentPoints, state.upgradeProposal.totalPointsAfterUpgrade, toast]);
+  }, [state.ownerProfile.currentPoints, state.totalPointsAfterUpgrade, toast]);
 
 
   const { 
@@ -189,10 +190,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   useEffect(() => {
-    if ((state.ownerProfile.currentPoints > 0 || (state.upgradeProposal.totalPointsAfterUpgrade || 0) > 0) && state.upgradeProposal.totalPointsAfterUpgrade !== undefined) {
-        calculateVipTiers();
-    }
-  }, [state.ownerProfile.currentPoints, state.upgradeProposal.totalPointsAfterUpgrade, calculateVipTiers]);
+    calculateVipTiers();
+  }, [calculateVipTiers]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
