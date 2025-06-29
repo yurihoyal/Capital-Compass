@@ -25,8 +25,10 @@ const UpgradeProposalForm = () => {
   }, [state.upgradeProposal, reset]);
 
   useEffect(() => {
-    const subscription = watch((value) => {
-      dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: value as UpgradeProposal });
+    const subscription = watch((value, { type }) => {
+      if (type) { // Only dispatch on user input, not programmatic changes like `reset`
+        dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: value as UpgradeProposal });
+      }
     });
     return () => subscription.unsubscribe();
   }, [watch, dispatch]);

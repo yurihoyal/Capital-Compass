@@ -26,8 +26,10 @@ const OwnerProfileForm = () => {
   }, [state.ownerProfile, reset]);
 
   useEffect(() => {
-    const subscription = watch((value) => {
-      dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
+    const subscription = watch((value, { type }) => {
+      if (type) { // Only dispatch on user input, not programmatic changes like `reset`
+        dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
+      }
     });
     return () => subscription.unsubscribe();
   }, [watch, dispatch]);

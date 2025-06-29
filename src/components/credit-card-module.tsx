@@ -26,8 +26,10 @@ const CreditCardModule = () => {
   }, [state.creditCardRewards, reset]);
 
   useEffect(() => {
-    const subscription = watch((value) => {
-      dispatch({ type: 'UPDATE_CREDIT_CARD_REWARDS', payload: value as CreditCardRewards });
+    const subscription = watch((value, { type }) => {
+      if (type) { // Only dispatch on user input, not programmatic changes like `reset`
+        dispatch({ type: 'UPDATE_CREDIT_CARD_REWARDS', payload: value as CreditCardRewards });
+      }
     });
     return () => subscription.unsubscribe();
   }, [watch, dispatch]);
