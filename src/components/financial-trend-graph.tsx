@@ -1,10 +1,21 @@
 'use client';
 import React from 'react';
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { useAppContext } from '@/contexts/app-context';
-import { ChartTooltipContent } from './ui/chart';
+import { ChartContainer, ChartTooltipContent, type ChartConfig } from './ui/chart';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
+
+const chartConfig = {
+  currentCost: {
+    label: "What If I Do Nothing?",
+    color: "hsl(var(--destructive))",
+  },
+  newCost: {
+    label: "Upgrade Proposal",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
 
 const FinancialTrendGraph = () => {
     const { state, dispatch } = useAppContext();
@@ -35,19 +46,19 @@ const FinancialTrendGraph = () => {
             </CardHeader>
             <CardContent>
                 <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ChartContainer config={chartConfig} className="w-full h-full">
                         <AreaChart
                             data={costProjectionData}
                             margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
                         >
                             <defs>
                                 <linearGradient id="colorNew" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="var(--color-newCost)" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="var(--color-newCost)" stopOpacity={0} />
                                 </linearGradient>
                                 <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="var(--color-currentCost)" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="var(--color-currentCost)" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -56,12 +67,12 @@ const FinancialTrendGraph = () => {
                                 tickFormatter={(value: number) => `$${(value / 1000).toFixed(0)}k`}
                                 width={80}
                             />
-                            <Tooltip content={<ChartTooltipContent />} />
+                            <Tooltip content={<ChartTooltipContent indicator="dot" />} />
                             <Legend />
-                            <Area type="monotone" dataKey="currentCost" name="What If I Do Nothing?" stroke="hsl(var(--destructive))" fillOpacity={1} fill="url(#colorCurrent)" />
-                            <Area type="monotone" dataKey="newCost" name="Upgrade Proposal" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#colorNew)" />
+                            <Area type="monotone" dataKey="currentCost" name="What If I Do Nothing?" strokeWidth={2} stroke="var(--color-currentCost)" fillOpacity={1} fill="url(#colorCurrent)" />
+                            <Area type="monotone" dataKey="newCost" name="Upgrade Proposal" strokeWidth={2} stroke="var(--color-newCost)" fillOpacity={1} fill="url(#colorNew)" />
                         </AreaChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                 </div>
             </CardContent>
              <CardFooter className="text-center justify-center">
