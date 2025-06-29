@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const ownershipTypes = ['Deeded', 'Club'] as const;
 export const painPoints = ['Booking', 'Exit', 'Fees', 'Flexibility', 'Usage'] as const;
 export const redemptionTypes = ['Travel', 'Maintenance Fees', 'Capital Access'] as const;
-export const loanTerms = [5, 10, 15, 20] as const;
+export const loanTerms = [60, 120, 180, 240] as const; // 5, 10, 15, 20 years in months
 
 export const OwnerProfileSchema = z.object({
   ownerName: z.string().min(1, 'Owner name is required.'),
@@ -23,7 +23,7 @@ export const UpgradeProposalSchema = z.object({
   newPointsAdded: z.coerce.number().min(0),
   convertedDeedsToPoints: z.coerce.number().min(0),
   newLoanAmount: z.coerce.number().min(0),
-  newLoanTerm: z.enum([5, 10, 15, 20]),
+  newLoanTerm: z.coerce.number().min(0),
   newLoanInterestRate: z.coerce.number().min(0).max(100),
   projectedMF: z.coerce.number().min(0),
 });

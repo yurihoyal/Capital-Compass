@@ -30,7 +30,7 @@ const initialOwnerProfile: OwnerProfile = {
   maintenanceFee: 2000,
   currentLoanBalance: 10000,
   currentLoanInterestRate: 8.5,
-  currentLoanTerm: 5,
+  currentLoanTerm: 60, // 5 years in months
   painPoints: [],
 };
 
@@ -38,7 +38,7 @@ const initialUpgradeProposal: UpgradeProposal = {
   newPointsAdded: 50000,
   convertedDeedsToPoints: 0,
   newLoanAmount: 25000,
-  newLoanTerm: 10,
+  newLoanTerm: 120, // 10 years in months
   newLoanInterestRate: 7.5,
   projectedMF: 2500,
 };

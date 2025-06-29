@@ -103,7 +103,7 @@ const UpgradeProposalForm = () => {
                         name="newLoanTerm"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>New Loan Term (Years)</FormLabel>
+                            <FormLabel>New Loan Term</FormLabel>
                              <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
                                 <FormControl>
                                 <SelectTrigger>
@@ -112,7 +112,7 @@ const UpgradeProposalForm = () => {
                                 </FormControl>
                                 <SelectContent>
                                 {loanTerms.map(term => (
-                                    <SelectItem key={term} value={String(term)}>{term} years</SelectItem>
+                                    <SelectItem key={term} value={String(term)}>{term / 12} years</SelectItem>
                                 ))}
                                 </SelectContent>
                             </Select>

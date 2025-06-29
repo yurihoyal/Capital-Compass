@@ -1,9 +1,9 @@
-export function calculateMonthlyPayment(principal: number, annualRate: number, termYears: number): number {
-  if (principal <= 0 || annualRate < 0 || termYears <= 0) {
+export function calculateMonthlyPayment(principal: number, annualRate: number, termMonths: number): number {
+  if (principal <= 0 || annualRate < 0 || termMonths <= 0) {
     return 0;
   }
   const monthlyRate = annualRate / 100 / 12;
-  const numberOfPayments = termYears * 12;
+  const numberOfPayments = termMonths;
 
   if (monthlyRate === 0) {
     return principal / numberOfPayments;
@@ -26,19 +26,19 @@ export function generateCostProjection(
     currentMfInflation: number,
     currentLoanBalance: number,
     currentLoanRate: number,
-    currentLoanTermRemaining: number,
+    currentLoanTermRemainingMonths: number,
     newMf: number,
     newMfInflation: number,
     newLoanAmount: number,
     newLoanRate: number,
-    newLoanTerm: number
+    newLoanTermMonths: number
 ) {
     const data = [];
     let cumulativeCurrentMf = 0;
     let cumulativeNewMf = 0;
     
-    const currentMonthlyLoanPayment = calculateMonthlyPayment(currentLoanBalance, currentLoanRate, currentLoanTermRemaining);
-    const newMonthlyLoanPayment = calculateMonthlyPayment(newLoanAmount, newLoanRate, newLoanTerm);
+    const currentMonthlyLoanPayment = calculateMonthlyPayment(currentLoanBalance, currentLoanRate, currentLoanTermRemainingMonths);
+    const newMonthlyLoanPayment = calculateMonthlyPayment(newLoanAmount, newLoanRate, newLoanTermMonths);
 
     for (let i = 1; i <= years; i++) {
         const inflatedCurrentMf = calculateFutureValue(currentMf, currentMfInflation, i);
@@ -47,11 +47,11 @@ export function generateCostProjection(
         cumulativeCurrentMf += inflatedCurrentMf;
         cumulativeNewMf += inflatedNewMf;
 
-        const currentLoanPaymentsYear = i <= currentLoanTermRemaining ? currentMonthlyLoanPayment * 12 : 0;
-        const newLoanPaymentsYear = i <= newLoanTerm ? newMonthlyLoanPayment * 12 : 0;
+        const totalCurrentLoanPaid = currentMonthlyLoanPayment * Math.min(i * 12, currentLoanTermRemainingMonths);
+        const totalNewLoanPaid = newMonthlyLoanPayment * Math.min(i * 12, newLoanTermMonths);
         
-        const totalCurrentCost = cumulativeCurrentMf + (currentMonthlyLoanPayment * 12 * Math.min(i, currentLoanTermRemaining));
-        const totalNewCost = cumulativeNewMf + (newMonthlyLoanPayment * 12 * Math.min(i, newLoanTerm));
+        const totalCurrentCost = cumulativeCurrentMf + totalCurrentLoanPaid;
+        const totalNewCost = cumulativeNewMf + totalNewLoanPaid;
         
         data.push({
             year: i,

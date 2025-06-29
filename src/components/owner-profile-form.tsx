@@ -156,9 +156,9 @@ const OwnerProfileForm = () => {
                         name="currentLoanTerm"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Remaining Loan Term (Years)</FormLabel>
+                            <FormLabel>Remaining Loan Term (Months)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="5" {...field} />
+                                <Input type="number" placeholder="60" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
