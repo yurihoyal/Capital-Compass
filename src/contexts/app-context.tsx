@@ -33,6 +33,7 @@ const initialOwnerProfile: OwnerProfile = {
   ownerName: 'John & Jane Smith',
   ownerId: '123456',
   ownershipType: 'Capital Club Member', 
+  deedPointValue: 0,
   currentPoints: 150000,
   maintenanceFee: 2000,
   specialAssessment: 0,
@@ -123,7 +124,7 @@ function appReducer(state: AppState, action: Action): AppState {
         const { ownerProfile, upgradeProposal, creditCardRewards, projectionYears, usePointOffset } = state;
         
         const calculatedSavings = (creditCardRewards.estimatedAnnualSpend * creditCardRewards.rewardRate) / 100;
-        const totalPointsAfterUpgrade = ownerProfile.currentPoints + upgradeProposal.newPointsAdded + upgradeProposal.convertedDeedsToPoints;
+        const totalPointsAfterUpgrade = (ownerProfile.currentPoints || 0) + (upgradeProposal.newPointsAdded || 0) + (upgradeProposal.convertedDeedsToPoints || 0);
         
         const currentMfInflation = ownerProfile.mfInflationRate;
         const newMfInflation = CLUB_INFLATION;
@@ -169,7 +170,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const { 
     ownerProfile: {
-      currentPoints, ownershipType, maintenanceFee, specialAssessment, currentLoanBalance, currentLoanInterestRate, currentLoanTerm, mfInflationRate
+      currentPoints, ownershipType, maintenanceFee, specialAssessment, currentLoanBalance, currentLoanInterestRate, currentLoanTerm, mfInflationRate, deedPointValue
     },
     upgradeProposal: {
       newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate
@@ -184,7 +185,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     dispatch({ type: 'CALCULATE_ALL' });
   }, [
-    currentPoints, ownershipType, maintenanceFee, specialAssessment, currentLoanBalance, currentLoanInterestRate, currentLoanTerm, mfInflationRate,
+    currentPoints, ownershipType, maintenanceFee, specialAssessment, currentLoanBalance, currentLoanInterestRate, currentLoanTerm, mfInflationRate, deedPointValue,
     newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate,
     estimatedAnnualSpend, rewardRate, 
     projectionYears,

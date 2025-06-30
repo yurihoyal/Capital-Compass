@@ -8,6 +8,7 @@ export const OwnerProfileSchema = z.object({
   ownerName: z.string().min(1, 'Owner name is required.'),
   ownerId: z.string().optional(),
   ownershipType: z.enum(ownershipTypes),
+  deedPointValue: z.coerce.number().min(0).optional(),
   currentPoints: z.coerce.number().min(0),
   maintenanceFee: z.coerce.number().min(0),
   specialAssessment: z.coerce.number().min(0),

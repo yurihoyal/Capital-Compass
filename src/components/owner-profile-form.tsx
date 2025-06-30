@@ -91,16 +91,26 @@ const OwnerProfileForm = () => {
     defaultValues: state.ownerProfile,
   });
 
-  const { watch, control, setValue } = form;
+  const { watch, control, setValue, reset } = form;
   const ownershipType = watch('ownershipType');
 
   // This useEffect syncs the entire form state to the global context on any change.
   useEffect(() => {
-    const subscription = watch((value) => {
-      dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
+    const subscription = watch((value, { name, type }) => {
+      if (type === 'change') {
+        dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
+        if (name === 'ownershipType') {
+          const newInflationRate = value.ownershipType === 'Deeded Only' ? 8 : 3;
+          setValue('mfInflationRate', newInflationRate, { shouldDirty: true });
+        }
+      }
     });
     return () => subscription.unsubscribe();
-  }, [watch, dispatch]);
+  }, [watch, dispatch, setValue]);
+
+  useEffect(() => {
+    reset(state.ownerProfile);
+  }, [state.ownerProfile, reset]);
 
 
   return (
@@ -151,8 +161,6 @@ const OwnerProfileForm = () => {
                                         <Select 
                                             onValueChange={(value: typeof ownershipTypes[number]) => {
                                                 field.onChange(value);
-                                                const newInflationRate = value === 'Deeded Only' ? 8 : 3;
-                                                setValue('mfInflationRate', newInflationRate, { shouldDirty: true });
                                             }} 
                                             defaultValue={field.value}>
                                             <FormControl>
@@ -170,6 +178,22 @@ const OwnerProfileForm = () => {
                                     </FormItem>
                                 )}
                             />
+                            
+                            {ownershipType === 'Deeded Only' && (
+                                <FormField
+                                    control={control}
+                                    name="deedPointValue"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Deed Point Value</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="e.g., 100000" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
 
                             {ownershipType === 'Capital Club Member' ? <VipTierDisplay /> : <DeededOwnerWarning />}
 
