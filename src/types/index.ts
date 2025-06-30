@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-export const ownershipTypes = ['Deeded', 'Club'] as const;
-export const painPoints = ['Booking', 'Exit', 'Fees', 'Flexibility', 'Usage'] as const;
+export const ownershipTypes = ['Deeded Only', 'Capital Club Member'] as const;
 export const redemptionTypes = ['Travel', 'Maintenance Fees', 'Capital Access'] as const;
 export const loanTerms = [60, 120, 180, 240] as const; // 5, 10, 15, 20 years in months
 
@@ -14,7 +13,7 @@ export const OwnerProfileSchema = z.object({
   currentLoanBalance: z.coerce.number().min(0),
   currentLoanInterestRate: z.coerce.number().min(0).max(100),
   currentLoanTerm: z.coerce.number().min(0),
-  painPoints: z.array(z.enum(painPoints)).optional(),
+  mfInflationRate: z.coerce.number().min(1).max(30),
 });
 export type OwnerProfile = z.infer<typeof OwnerProfileSchema>;
 

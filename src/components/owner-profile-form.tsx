@@ -3,13 +3,74 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { OwnerProfile, OwnerProfileSchema, ownershipTypes, painPoints } from '@/types';
+import { OwnerProfile, OwnerProfileSchema, ownershipTypes } from '@/types';
 import { useAppContext } from '@/contexts/app-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from './ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertTriangle, Info, Sparkles } from "lucide-react";
+import { Badge } from "./ui/badge";
+import { Skeleton } from "./ui/skeleton";
+import { Slider } from "./ui/slider";
+import CurrentOwnershipProjection from './current-ownership-projection';
+
+
+const DeededOwnerWarning = () => (
+  <Alert variant="destructive" className="border-destructive/50 text-destructive [&>svg]:text-destructive">
+    <AlertTriangle className="h-4 w-4" />
+    <AlertTitle className="font-bold flex items-center justify-between">
+      Deeded Owner Alert
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-4 w-4 cursor-pointer" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Club upgrades provide booking power, exit pathways, <br/> cost protection, and VIP travel benefits.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </AlertTitle>
+    <AlertDescription className="text-destructive/90">
+      This owner has no Club benefits, VIP access, or responsible exit options. Ownership is governed by HOA restrictions and limited to the deeded contract.
+    </AlertDescription>
+  </Alert>
+);
+
+const vipPerks: Record<string, string> = {
+  'Preferred': 'Standard booking window.',
+  'Silver': 'Priority booking & travel discounts.',
+  'Gold': 'Enhanced booking, exclusive access & bigger discounts.',
+  'Platinum': 'Premium benefits, max discounts & dedicated concierge.',
+};
+
+const VipTierDisplay = () => {
+  const { state } = useAppContext();
+  const { currentVIPLevel, isCalculating } = state;
+  
+  return (
+    <div className="p-4 rounded-lg bg-muted/50">
+      <FormLabel className="text-base">VIP Tier Status</FormLabel>
+      <div className="mt-2">
+        {isCalculating ? (
+          <Skeleton className="h-8 w-24" />
+        ) : (
+          <Badge className="text-base bg-primary hover:bg-primary/90 flex items-center gap-2">
+            <Sparkles size={16}/>
+            {currentVIPLevel}
+          </Badge>
+        )}
+        <p className="text-sm text-muted-foreground mt-2">
+          {vipPerks[currentVIPLevel] || 'Enter points to see tier perks.'}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 
 const OwnerProfileForm = () => {
   const { state, dispatch } = useAppContext();
@@ -19,202 +80,191 @@ const OwnerProfileForm = () => {
     defaultValues: state.ownerProfile,
   });
 
-  const { watch, reset, formState: { isDirty } } = form;
+  const { watch, reset, control, setValue } = form;
+  const ownershipType = watch('ownershipType');
 
   useEffect(() => {
     reset(state.ownerProfile);
   }, [state.ownerProfile, reset]);
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (type === 'change' && isDirty) {
-        dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
-      }
+    const subscription = watch((value) => {
+      dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
     });
     return () => subscription.unsubscribe();
-  }, [watch, dispatch, isDirty]);
+  }, [watch, dispatch]);
+
+  useEffect(() => {
+    if (ownershipType) {
+        const newInflationRate = ownershipType === 'Deeded Only' ? 8 : 3;
+        setValue('mfInflationRate', newInflationRate, { shouldDirty: true });
+    }
+  }, [ownershipType, setValue]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Current Ownership Details</CardTitle>
-        <CardDescription>Enter the client's current ownership information.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Owner Profile & Current Ownership Analysis</CardTitle>
+        <CardDescription>Enter the owner's details to project their current financial path and identify opportunities.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form className="space-y-8">
-            <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                    <FormField
-                        control={form.control}
-                        name="ownerName"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Owner Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Phone</FormLabel>
-                            <FormControl>
-                                <Input placeholder="(555) 555-5555" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                     <FormField
-                        control={form.control}
-                        name="ownershipType"
-                        render={({ field }) => (
-                            <FormItem className="space-y-3">
-                            <FormLabel>Ownership Type</FormLabel>
-                            <FormControl>
-                                <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="flex items-center space-x-4"
-                                >
-                                {ownershipTypes.map((type) => (
-                                    <FormItem key={type} className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                            <RadioGroupItem value={type} />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">{type}</FormLabel>
-                                    </FormItem>
-                                ))}
-                                </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="currentPoints"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Current Points</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="150000" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="maintenanceFee"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Annual Maintenance Fee ($)</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="2000" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-                <div className="space-y-4">
-                     <FormField
-                        control={form.control}
-                        name="currentLoanBalance"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Current Loan Balance ($)</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="10000" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                     <FormField
-                        control={form.control}
-                        name="currentLoanInterestRate"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Current Loan Interest Rate (%)</FormLabel>
-                            <FormControl>
-                                <Input type="number" step="0.1" placeholder="8.5" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="currentLoanTerm"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Remaining Loan Term (Months)</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="60" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="painPoints"
-                    render={() => (
-                        <FormItem>
-                        <div className="mb-4">
-                            <FormLabel className="text-base">Pain Points</FormLabel>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                        {painPoints.map((item) => (
-                            <FormField
-                            key={item}
-                            control={form.control}
-                            name="painPoints"
-                            render={({ field }) => {
-                                return (
-                                <FormItem
-                                    key={item}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                >
+        <div className="grid lg:grid-cols-2 gap-8">
+            {/* Left Column: Inputs */}
+            <div className="space-y-6">
+                <Form {...form}>
+                    <form>
+                        <div className="space-y-4">
+                             <FormField
+                                control={control}
+                                name="ownerName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Owner Name</FormLabel>
                                     <FormControl>
-                                    <Checkbox
-                                        checked={field.value?.includes(item)}
-                                        onCheckedChange={(checked) => {
-                                        return checked
-                                            ? field.onChange([...(field.value || []), item])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                (value) => value !== item
-                                                )
-                                            )
-                                        }}
-                                    />
+                                        <Input placeholder="John Doe" {...field} />
                                     </FormControl>
-                                    <FormLabel className="font-normal">
-                                    {item}
-                                    </FormLabel>
-                                </FormItem>
-                                )
-                            }}
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        ))}
+                            <FormField
+                                control={control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Phone</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="(555) 555-5555" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={control}
+                                name="ownershipType"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Ownership Type</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select ownership type" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {ownershipTypes.map((type) => (
+                                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {ownershipType === 'Capital Club Member' ? <VipTierDisplay /> : <DeededOwnerWarning />}
+
+                             {ownershipType === 'Capital Club Member' && (
+                                <FormField
+                                    control={control}
+                                    name="currentPoints"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Current Club Points</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="150000" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                             )}
+
+                            <FormField
+                                control={control}
+                                name="maintenanceFee"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Annual Maintenance Fee ($)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="2000" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={control}
+                                name="mfInflationRate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>MF Inflation Rate ({field.value}%)</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            min={1}
+                                            max={30}
+                                            step={1}
+                                            value={[field.value]}
+                                            onValueChange={(value) => field.onChange(value[0])}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <h3 className="font-medium pt-4 border-b pb-2">Optional Loan Details</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                    control={control}
+                                    name="currentLoanBalance"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Loan Balance ($)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="10000" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={control}
+                                    name="currentLoanInterestRate"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Interest Rate (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.1" placeholder="8.5" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={control}
+                                    name="currentLoanTerm"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Term (Months)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="60" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </div>
+                    </form>
+                </Form>
             </div>
-          </form>
-        </Form>
+            {/* Right Column: Projection */}
+            <div>
+              <CurrentOwnershipProjection />
+            </div>
+        </div>
       </CardContent>
     </Card>
   );

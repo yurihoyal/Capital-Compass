@@ -4,7 +4,7 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback } 
 import { OwnerProfile, UpgradeProposal, CreditCardRewards, ownershipTypes, redemptionTypes } from '@/types';
 import { getVipTier } from '@/app/actions';
 import { useToast } from "@/hooks/use-toast";
-import { generateCostProjection } from '@/lib/financial';
+import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
 
 const DEEDED_INFLATION = 8;
 const CLUB_INFLATION = 3;
@@ -16,6 +16,8 @@ interface AppState {
   creditCardRewards: CreditCardRewards;
   isCalculating: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
+  currentPathProjection: { year: number, cumulativeCost: number }[];
+  currentPathSummary: { totalCost: number; totalInterest: number; totalMf: number; };
   projectionYears: 10 | 15 | 20;
   usePointOffset: boolean;
   totalPointsAfterUpgrade: number;
@@ -24,41 +26,42 @@ interface AppState {
 }
 
 const initialOwnerProfile: OwnerProfile = {
-  ownerName: '',
-  phone: '',
-  ownershipType: ownershipTypes[1], // Club
+  ownerName: 'John & Jane Smith',
+  phone: '(555) 123-4567',
+  ownershipType: 'Capital Club Member', 
   currentPoints: 150000,
   maintenanceFee: 2000,
   currentLoanBalance: 10000,
   currentLoanInterestRate: 8.5,
-  currentLoanTerm: 60, // 5 years in months
-  painPoints: [],
+  currentLoanTerm: 60,
+  mfInflationRate: 3,
 };
 
 const initialUpgradeProposal: UpgradeProposal = {
   newPointsAdded: 50000,
   convertedDeedsToPoints: 0,
   newLoanAmount: 25000,
-  newLoanTerm: 120, // 10 years in months
+  newLoanTerm: 120,
   newLoanInterestRate: 7.5,
   projectedMF: 2500,
 };
 
 const initialCreditCardRewards: CreditCardRewards = {
   estimatedAnnualSpend: 10000,
-  redemptionType: redemptionTypes[0], // Travel
+  redemptionType: redemptionTypes[0], 
   rewardRate: 1.5,
-  calculatedSavings: 0, // will be calculated
+  calculatedSavings: 0,
 };
 
 // Calculate derived initial values
 const initialTotalPointsAfterUpgrade = initialOwnerProfile.currentPoints + initialUpgradeProposal.newPointsAdded + initialUpgradeProposal.convertedDeedsToPoints;
 const initialCalculatedSavings = (initialCreditCardRewards.estimatedAnnualSpend * initialCreditCardRewards.rewardRate) / 100;
+const initialCurrentPathData = generateCurrentPathProjection(10, initialOwnerProfile.maintenanceFee, initialOwnerProfile.mfInflationRate, initialOwnerProfile.currentLoanBalance, initialOwnerProfile.currentLoanInterestRate, initialOwnerProfile.currentLoanTerm);
 
 const initialCostProjectionData = generateCostProjection(
-    10, // initial projection years
+    10, 
     initialOwnerProfile.maintenanceFee,
-    initialOwnerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION,
+    initialOwnerProfile.ownershipType === 'Deeded Only' ? DEEDED_INFLATION : CLUB_INFLATION,
     initialOwnerProfile.currentLoanBalance,
     initialOwnerProfile.currentLoanInterestRate,
     initialOwnerProfile.currentLoanTerm,
@@ -67,7 +70,7 @@ const initialCostProjectionData = generateCostProjection(
     initialUpgradeProposal.newLoanAmount,
     initialUpgradeProposal.newLoanInterestRate,
     initialUpgradeProposal.newLoanTerm,
-    0 // initial offset
+    0
 );
 
 const initialState: AppState = {
@@ -76,6 +79,8 @@ const initialState: AppState = {
   creditCardRewards: { ...initialCreditCardRewards, calculatedSavings: initialCalculatedSavings },
   isCalculating: false,
   costProjectionData: initialCostProjectionData,
+  currentPathProjection: initialCurrentPathData.projection,
+  currentPathSummary: initialCurrentPathData.summary,
   projectionYears: 10,
   usePointOffset: false,
   totalPointsAfterUpgrade: initialTotalPointsAfterUpgrade,
@@ -121,7 +126,7 @@ function appReducer(state: AppState, action: Action): AppState {
         const calculatedSavings = (creditCardRewards.estimatedAnnualSpend * creditCardRewards.rewardRate) / 100;
         const totalPointsAfterUpgrade = ownerProfile.currentPoints + upgradeProposal.newPointsAdded + upgradeProposal.convertedDeedsToPoints;
         
-        const currentMfInflation = ownerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION;
+        const currentMfInflation = ownerProfile.mfInflationRate;
         const newMfInflation = CLUB_INFLATION;
         
         const annualNewCostOffset = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
@@ -133,6 +138,11 @@ function appReducer(state: AppState, action: Action): AppState {
             annualNewCostOffset
         );
 
+        const currentPathData = generateCurrentPathProjection(
+            projectionYears,
+            ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm
+        );
+
         return {
             ...state,
             totalPointsAfterUpgrade,
@@ -140,7 +150,9 @@ function appReducer(state: AppState, action: Action): AppState {
                 ...state.creditCardRewards,
                 calculatedSavings,
             },
-            costProjectionData
+            costProjectionData,
+            currentPathProjection: currentPathData.projection,
+            currentPathSummary: currentPathData.summary
         };
     }
     default:
@@ -178,7 +190,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const { 
     ownerProfile: {
-      currentPoints, ownershipType, maintenanceFee, currentLoanBalance, currentLoanInterestRate, currentLoanTerm
+      currentPoints, ownershipType, maintenanceFee, currentLoanBalance, currentLoanInterestRate, currentLoanTerm, mfInflationRate
     },
     upgradeProposal: {
       newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate
@@ -193,7 +205,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     dispatch({ type: 'CALCULATE_ALL' });
   }, [
-    currentPoints, ownershipType, maintenanceFee, currentLoanBalance, currentLoanInterestRate, currentLoanTerm,
+    currentPoints, ownershipType, maintenanceFee, currentLoanBalance, currentLoanInterestRate, currentLoanTerm, mfInflationRate,
     newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate,
     estimatedAnnualSpend, rewardRate, 
     projectionYears,
