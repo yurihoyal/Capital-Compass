@@ -6,7 +6,7 @@ export const loanTerms = [60, 120, 180, 240] as const; // 5, 10, 15, 20 years in
 
 export const OwnerProfileSchema = z.object({
   ownerName: z.string().min(1, 'Owner name is required.'),
-  phone: z.string().optional(),
+  ownerId: z.string().optional(),
   ownershipType: z.enum(ownershipTypes),
   currentPoints: z.coerce.number().min(0),
   maintenanceFee: z.coerce.number().min(0),

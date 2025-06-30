@@ -27,7 +27,7 @@ interface AppState {
 
 const initialOwnerProfile: OwnerProfile = {
   ownerName: 'John & Jane Smith',
-  phone: '(555) 123-4567',
+  ownerId: '123456',
   ownershipType: 'Capital Club Member', 
   currentPoints: 150000,
   maintenanceFee: 2000,

@@ -120,12 +120,12 @@ const OwnerProfileForm = () => {
                             />
                             <FormField
                                 control={control}
-                                name="phone"
+                                name="ownerId"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Phone</FormLabel>
+                                    <FormLabel>Owner ID</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="(555) 555-5555" {...field} />
+                                        <Input placeholder="e.g. 123456" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
