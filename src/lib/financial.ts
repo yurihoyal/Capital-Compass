@@ -56,8 +56,8 @@ export function generateCostProjection(
         
         data.push({
             year: i,
-            currentCost: totalCurrentCost,
-            newCost: totalNewCost,
+            currentCost: Math.round(totalCurrentCost),
+            newCost: Math.round(totalNewCost),
         });
     }
 
@@ -86,7 +86,7 @@ export function generateCurrentPathProjection(
         
         projection.push({
             year: i,
-            cumulativeCost: cumulativeMf + totalLoanPaid + specialAssessment,
+            cumulativeCost: Math.round(cumulativeMf + totalLoanPaid + specialAssessment),
         });
     }
 
