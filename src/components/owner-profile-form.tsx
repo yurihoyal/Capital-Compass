@@ -80,13 +80,10 @@ const OwnerProfileForm = () => {
     defaultValues: state.ownerProfile,
   });
 
-  const { watch, reset, control, setValue } = form;
+  const { watch, control, setValue } = form;
   const ownershipType = watch('ownershipType');
 
-  useEffect(() => {
-    reset(state.ownerProfile);
-  }, [state.ownerProfile, reset]);
-
+  // This useEffect syncs the entire form state to the global context on any change.
   useEffect(() => {
     const subscription = watch((value) => {
       dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
@@ -94,12 +91,6 @@ const OwnerProfileForm = () => {
     return () => subscription.unsubscribe();
   }, [watch, dispatch]);
 
-  useEffect(() => {
-    if (ownershipType) {
-        const newInflationRate = ownershipType === 'Deeded Only' ? 8 : 3;
-        setValue('mfInflationRate', newInflationRate, { shouldDirty: true });
-    }
-  }, [ownershipType, setValue]);
 
   return (
     <Card>
@@ -146,7 +137,13 @@ const OwnerProfileForm = () => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Ownership Type</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select 
+                                            onValueChange={(value: typeof ownershipTypes[number]) => {
+                                                field.onChange(value);
+                                                const newInflationRate = value === 'Deeded Only' ? 8 : 3;
+                                                setValue('mfInflationRate', newInflationRate, { shouldDirty: true });
+                                            }} 
+                                            defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select ownership type" />
