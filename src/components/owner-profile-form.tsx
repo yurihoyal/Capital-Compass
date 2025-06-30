@@ -191,6 +191,19 @@ const OwnerProfileForm = () => {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={control}
+                                name="specialAssessment"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Special Assessment ($)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="0" {...field} />
+                                    </FormControl>
+                                     <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                              <FormField
                                 control={control}
                                 name="mfInflationRate"

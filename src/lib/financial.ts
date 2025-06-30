@@ -23,6 +23,7 @@ export function generateCostProjection(
     years: number,
     currentMf: number,
     currentMfInflation: number,
+    currentSpecialAssessment: number,
     currentLoanBalance: number,
     currentLoanRate: number,
     currentLoanTermRemainingMonths: number,
@@ -50,7 +51,7 @@ export function generateCostProjection(
         const totalCurrentLoanPaid = currentMonthlyLoanPayment * Math.min(i * 12, currentLoanTermRemainingMonths);
         const totalNewLoanPaid = newMonthlyLoanPayment * Math.min(i * 12, newLoanTermMonths);
         
-        const totalCurrentCost = cumulativeCurrentMf + totalCurrentLoanPaid;
+        const totalCurrentCost = cumulativeCurrentMf + totalCurrentLoanPaid + currentSpecialAssessment;
         const totalNewCost = cumulativeNewMf + totalNewLoanPaid;
         
         data.push({
@@ -67,6 +68,7 @@ export function generateCurrentPathProjection(
     years: number,
     mf: number,
     mfInflation: number,
+    specialAssessment: number,
     loanBalance: number,
     loanRate: number,
     loanTermRemainingMonths: number
@@ -84,7 +86,7 @@ export function generateCurrentPathProjection(
         
         projection.push({
             year: i,
-            cumulativeCost: cumulativeMf + totalLoanPaid,
+            cumulativeCost: cumulativeMf + totalLoanPaid + specialAssessment,
         });
     }
 

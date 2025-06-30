@@ -10,6 +10,7 @@ export const OwnerProfileSchema = z.object({
   ownershipType: z.enum(ownershipTypes),
   currentPoints: z.coerce.number().min(0),
   maintenanceFee: z.coerce.number().min(0),
+  specialAssessment: z.coerce.number().min(0),
   currentLoanBalance: z.coerce.number().min(0),
   currentLoanInterestRate: z.coerce.number().min(0).max(100),
   currentLoanTerm: z.coerce.number().min(0),
