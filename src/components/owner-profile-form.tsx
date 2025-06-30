@@ -16,6 +16,7 @@ import { Badge } from "./ui/badge";
 import { Skeleton } from "./ui/skeleton";
 import { Slider } from "./ui/slider";
 import CurrentOwnershipProjection from './current-ownership-projection';
+import { cn } from '@/lib/utils';
 
 
 const DeededOwnerWarning = () => (
@@ -47,22 +48,32 @@ const vipPerks: Record<string, string> = {
   'Platinum': 'Premium benefits, max discounts & dedicated concierge.',
 };
 
+const getTierBadgeClass = (tier: string) => {
+    switch (tier) {
+        case 'Platinum':
+            return 'bg-gray-300 text-gray-800 hover:bg-gray-300/80 border-transparent';
+        case 'Gold':
+            return 'bg-yellow-400 text-black hover:bg-yellow-400/80 border-transparent';
+        case 'Silver':
+            return 'bg-slate-400 text-black hover:bg-slate-400/80 border-transparent';
+        case 'Preferred':
+        default:
+            return 'bg-primary text-primary-foreground hover:bg-primary/90 border-transparent';
+    }
+};
+
 const VipTierDisplay = () => {
   const { state } = useAppContext();
-  const { currentVIPLevel, isCalculating } = state;
+  const { currentVIPLevel } = state;
   
   return (
     <div className="p-4 rounded-lg bg-muted/50">
       <FormLabel className="text-base">VIP Tier Status</FormLabel>
       <div className="mt-2">
-        {isCalculating ? (
-          <Skeleton className="h-8 w-24" />
-        ) : (
-          <Badge className="text-base bg-primary hover:bg-primary/90 flex items-center gap-2">
+        <Badge className={cn("text-base flex items-center gap-2", getTierBadgeClass(currentVIPLevel))}>
             <Sparkles size={16}/>
             {currentVIPLevel}
-          </Badge>
-        )}
+        </Badge>
         <p className="text-sm text-muted-foreground mt-2">
           {vipPerks[currentVIPLevel] || 'Enter points to see tier perks.'}
         </p>

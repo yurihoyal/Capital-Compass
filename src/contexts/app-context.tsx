@@ -2,19 +2,23 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { OwnerProfile, UpgradeProposal, CreditCardRewards, ownershipTypes, redemptionTypes } from '@/types';
-import { getVipTier } from '@/app/actions';
-import { useToast } from "@/hooks/use-toast";
 import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
 
 const DEEDED_INFLATION = 8;
 const CLUB_INFLATION = 3;
 const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
+const getVipTierFromPoints = (points: number): string => {
+    if (points >= 1000000) return 'Platinum';
+    if (points >= 500000) return 'Gold';
+    if (points >= 300000) return 'Silver';
+    return 'Preferred';
+};
+
 interface AppState {
   ownerProfile: OwnerProfile;
   upgradeProposal: UpgradeProposal;
   creditCardRewards: CreditCardRewards;
-  isCalculating: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
   currentPathProjection: { year: number, cumulativeCost: number }[];
   currentPathSummary: { totalCost: number; totalInterest: number; totalMf: number; };
@@ -79,23 +83,20 @@ const initialState: AppState = {
   ownerProfile: initialOwnerProfile,
   upgradeProposal: initialUpgradeProposal,
   creditCardRewards: { ...initialCreditCardRewards, calculatedSavings: initialCalculatedSavings },
-  isCalculating: false,
   costProjectionData: initialCostProjectionData,
   currentPathProjection: initialCurrentPathData.projection,
   currentPathSummary: initialCurrentPathData.summary,
   projectionYears: 10,
   usePointOffset: false,
   totalPointsAfterUpgrade: initialTotalPointsAfterUpgrade,
-  currentVIPLevel: 'Preferred',
-  projectedVIPLevel: 'Preferred',
+  currentVIPLevel: getVipTierFromPoints(initialOwnerProfile.currentPoints),
+  projectedVIPLevel: getVipTierFromPoints(initialTotalPointsAfterUpgrade),
 };
 
 type Action =
   | { type: 'UPDATE_OWNER_PROFILE'; payload: Partial<OwnerProfile> }
   | { type: 'UPDATE_UPGRADE_PROPOSAL'; payload: Partial<UpgradeProposal> }
   | { type: 'UPDATE_CREDIT_CARD_REWARDS'; payload: Partial<CreditCardRewards> }
-  | { type: 'SET_VIP_LEVELS'; payload: { current: string, projected: string } }
-  | { type: 'SET_IS_CALCULATING'; payload: boolean }
   | { type: 'RESET_STATE' }
   | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 15 | 20 }
   | { type: 'SET_USE_POINT_OFFSET', payload: boolean }
@@ -112,10 +113,6 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, upgradeProposal: { ...state.upgradeProposal, ...action.payload } };
     case 'UPDATE_CREDIT_CARD_REWARDS':
         return { ...state, creditCardRewards: { ...state.creditCardRewards, ...action.payload } };
-    case 'SET_VIP_LEVELS':
-        return { ...state, currentVIPLevel: action.payload.current, projectedVIPLevel: action.payload.projected };
-    case 'SET_IS_CALCULATING':
-      return { ...state, isCalculating: action.payload };
     case 'RESET_STATE':
         return { ...initialState };
     case 'SET_PROJECTION_YEARS':
@@ -145,6 +142,9 @@ function appReducer(state: AppState, action: Action): AppState {
             ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm
         );
 
+        const currentVIPLevel = getVipTierFromPoints(ownerProfile.currentPoints);
+        const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
+
         return {
             ...state,
             totalPointsAfterUpgrade,
@@ -154,7 +154,9 @@ function appReducer(state: AppState, action: Action): AppState {
             },
             costProjectionData,
             currentPathProjection: currentPathData.projection,
-            currentPathSummary: currentPathData.summary
+            currentPathSummary: currentPathData.summary,
+            currentVIPLevel,
+            projectedVIPLevel
         };
     }
     default:
@@ -164,31 +166,6 @@ function appReducer(state: AppState, action: Action): AppState {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { toast } = useToast();
-
-  const calculateVipTiers = useCallback(async () => {
-    if (state.totalPointsAfterUpgrade === undefined) return;
-    dispatch({ type: 'SET_IS_CALCULATING', payload: true });
-    try {
-      const [currentVip, projectedVip] = await Promise.all([
-        getVipTier(state.ownerProfile.currentPoints),
-        getVipTier(state.totalPointsAfterUpgrade)
-      ]);
-      
-      dispatch({ type: 'SET_VIP_LEVELS', payload: { current: currentVip.vipTier, projected: projectedVip.vipTier } });
-
-    } catch (error) {
-        console.error("Error calculating VIP tiers:", error);
-        toast({
-            variant: "destructive",
-            title: "AI Error",
-            description: "Could not calculate VIP tiers. Please try again.",
-        });
-    } finally {
-      dispatch({ type: 'SET_IS_CALCULATING', payload: false });
-    }
-  }, [state.ownerProfile.currentPoints, state.totalPointsAfterUpgrade, toast]);
-
 
   const { 
     ownerProfile: {
@@ -214,10 +191,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     usePointOffset,
     dispatch
   ]);
-
-  useEffect(() => {
-    calculateVipTiers();
-  }, [calculateVipTiers]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
