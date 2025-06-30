@@ -8,6 +8,7 @@ import { generateCostProjection } from '@/lib/financial';
 
 const DEEDED_INFLATION = 8;
 const CLUB_INFLATION = 3;
+const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
 interface AppState {
   ownerProfile: OwnerProfile;
@@ -15,7 +16,8 @@ interface AppState {
   creditCardRewards: CreditCardRewards;
   isCalculating: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
-  projectionYears: 10 | 20;
+  projectionYears: 10 | 15 | 20;
+  usePointOffset: boolean;
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
   projectedVIPLevel: string;
@@ -53,6 +55,7 @@ const initialCreditCardRewards: CreditCardRewards = {
 // Calculate derived initial values
 const initialTotalPointsAfterUpgrade = initialOwnerProfile.currentPoints + initialUpgradeProposal.newPointsAdded + initialUpgradeProposal.convertedDeedsToPoints;
 const initialCalculatedSavings = (initialCreditCardRewards.estimatedAnnualSpend * initialCreditCardRewards.rewardRate) / 100;
+
 const initialCostProjectionData = generateCostProjection(
     10, // initial projection years
     initialOwnerProfile.maintenanceFee,
@@ -64,7 +67,8 @@ const initialCostProjectionData = generateCostProjection(
     CLUB_INFLATION,
     initialUpgradeProposal.newLoanAmount,
     initialUpgradeProposal.newLoanInterestRate,
-    initialUpgradeProposal.newLoanTerm
+    initialUpgradeProposal.newLoanTerm,
+    0 // initial offset
 );
 
 const initialState: AppState = {
@@ -74,6 +78,7 @@ const initialState: AppState = {
   isCalculating: false,
   costProjectionData: initialCostProjectionData,
   projectionYears: 10,
+  usePointOffset: false,
   totalPointsAfterUpgrade: initialTotalPointsAfterUpgrade,
   currentVIPLevel: 'Preferred',
   projectedVIPLevel: 'Preferred',
@@ -86,7 +91,8 @@ type Action =
   | { type: 'SET_VIP_LEVELS'; payload: { current: string, projected: string } }
   | { type: 'SET_IS_CALCULATING'; payload: boolean }
   | { type: 'RESET_STATE' }
-  | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 20 }
+  | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 15 | 20 }
+  | { type: 'SET_USE_POINT_OFFSET', payload: boolean }
   | { type: 'CALCULATE_ALL' };
 
 
@@ -108,8 +114,10 @@ function appReducer(state: AppState, action: Action): AppState {
         return { ...initialState };
     case 'SET_PROJECTION_YEARS':
         return { ...state, projectionYears: action.payload };
+    case 'SET_USE_POINT_OFFSET':
+        return { ...state, usePointOffset: action.payload };
     case 'CALCULATE_ALL': {
-        const { ownerProfile, upgradeProposal, creditCardRewards, projectionYears } = state;
+        const { ownerProfile, upgradeProposal, creditCardRewards, projectionYears, usePointOffset } = state;
         
         const calculatedSavings = (creditCardRewards.estimatedAnnualSpend * creditCardRewards.rewardRate) / 100;
         const totalPointsAfterUpgrade = ownerProfile.currentPoints + upgradeProposal.newPointsAdded + upgradeProposal.convertedDeedsToPoints;
@@ -117,10 +125,13 @@ function appReducer(state: AppState, action: Action): AppState {
         const currentMfInflation = ownerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION;
         const newMfInflation = CLUB_INFLATION;
         
+        const annualNewCostOffset = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
+        
         const costProjectionData = generateCostProjection(
             projectionYears,
             ownerProfile.maintenanceFee, currentMfInflation, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm,
-            upgradeProposal.projectedMF, newMfInflation, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm
+            upgradeProposal.projectedMF, newMfInflation, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
+            annualNewCostOffset
         );
 
         return {
@@ -176,7 +187,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     creditCardRewards: {
       estimatedAnnualSpend, rewardRate
     },
-    projectionYears
+    projectionYears,
+    usePointOffset
   } = state;
 
   useEffect(() => {
@@ -186,6 +198,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     newPointsAdded, convertedDeedsToPoints, projectedMF, newLoanAmount, newLoanTerm, newLoanInterestRate,
     estimatedAnnualSpend, rewardRate, 
     projectionYears,
+    usePointOffset,
     dispatch
   ]);
 

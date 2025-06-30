@@ -31,7 +31,8 @@ export function generateCostProjection(
     newMfInflation: number,
     newLoanAmount: number,
     newLoanRate: number,
-    newLoanTermMonths: number
+    newLoanTermMonths: number,
+    annualNewCostOffset: number = 0
 ) {
     const data = [];
     let cumulativeCurrentMf = 0;
@@ -42,10 +43,10 @@ export function generateCostProjection(
 
     for (let i = 1; i <= years; i++) {
         const inflatedCurrentMf = calculateFutureValue(currentMf, currentMfInflation, i);
-        const inflatedNewMf = calculateFutureValue(newMf, newMfInflation, i);
+        const inflatedNewMfWithOffset = calculateFutureValue(newMf, newMfInflation, i) - annualNewCostOffset;
         
         cumulativeCurrentMf += inflatedCurrentMf;
-        cumulativeNewMf += inflatedNewMf;
+        cumulativeNewMf += Math.max(0, inflatedNewMfWithOffset); // Ensure cost doesn't go negative
 
         const totalCurrentLoanPaid = currentMonthlyLoanPayment * Math.min(i * 12, currentLoanTermRemainingMonths);
         const totalNewLoanPaid = newMonthlyLoanPayment * Math.min(i * 12, newLoanTermMonths);

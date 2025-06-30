@@ -22,7 +22,7 @@ const FinancialTrendGraph = () => {
     const { costProjectionData, projectionYears } = state;
 
     const handleTabChange = (value: string) => {
-        dispatch({ type: 'SET_PROJECTION_YEARS', payload: parseInt(value, 10) as 10 | 20 });
+        dispatch({ type: 'SET_PROJECTION_YEARS', payload: parseInt(value, 10) as 10 | 15 | 20 });
     };
 
     return (
@@ -36,9 +36,10 @@ const FinancialTrendGraph = () => {
                             The "What If I Do Nothing?" line represents the regret curve.
                         </CardDescription>
                     </div>
-                     <Tabs defaultValue={String(projectionYears)} onValueChange={handleTabChange} className="w-[180px]">
-                        <TabsList className="grid w-full grid-cols-2">
+                     <Tabs defaultValue={String(projectionYears)} onValueChange={handleTabChange} className="w-[270px]">
+                        <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="10">10 Years</TabsTrigger>
+                            <TabsTrigger value="15">15 Years</TabsTrigger>
                             <TabsTrigger value="20">20 Years</TabsTrigger>
                         </TabsList>
                     </Tabs>
