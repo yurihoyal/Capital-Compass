@@ -26,7 +26,6 @@ interface AppState {
 const initialOwnerProfile: OwnerProfile = {
   ownerName: '',
   phone: '',
-  email: '',
   ownershipType: ownershipTypes[1], // Club
   currentPoints: 150000,
   maintenanceFee: 2000,

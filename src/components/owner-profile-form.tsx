@@ -19,20 +19,20 @@ const OwnerProfileForm = () => {
     defaultValues: state.ownerProfile,
   });
 
-  const { watch, reset } = form;
+  const { watch, reset, formState: { isDirty } } = form;
 
   useEffect(() => {
     reset(state.ownerProfile);
   }, [state.ownerProfile, reset]);
 
   useEffect(() => {
-    const subscription = watch((value, { type }) => {
-      if (type) { // Only dispatch on user input, not programmatic changes like `reset`
+    const subscription = watch((value, { name, type }) => {
+      if (type === 'change' && isDirty) {
         dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
       }
     });
     return () => subscription.unsubscribe();
-  }, [watch, dispatch]);
+  }, [watch, dispatch, isDirty]);
 
   return (
     <Card>
@@ -60,12 +60,12 @@ const OwnerProfileForm = () => {
                     />
                     <FormField
                         control={form.control}
-                        name="email"
+                        name="phone"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>Phone</FormLabel>
                             <FormControl>
-                                <Input placeholder="owner@email.com" {...field} />
+                                <Input placeholder="(555) 555-5555" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
