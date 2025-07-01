@@ -133,11 +133,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     let totalPointsAfterUpgrade;
     if (isClubMember) {
         // For Club Members, the new total is their current points plus newly added points.
-        // This addresses a bug where the calculation was incorrect for this owner type.
-        totalPointsAfterUpgrade = currentPoints + (upgradeProposal.newPointsAdded || 0);
+        // This fixes a bug where string concatenation was occurring instead of numeric addition.
+        totalPointsAfterUpgrade = Number(currentPoints) + Number(upgradeProposal.newPointsAdded || 0);
     } else {
         // For Deeded Owners, the new total is their deed's value (converted to points) plus newly added points.
-        totalPointsAfterUpgrade = (ownerProfile.deedPointValue || 0) + (upgradeProposal.newPointsAdded || 0);
+        totalPointsAfterUpgrade = Number(ownerProfile.deedPointValue || 0) + Number(upgradeProposal.newPointsAdded || 0);
     }
     
     const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
