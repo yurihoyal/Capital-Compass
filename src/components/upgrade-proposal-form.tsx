@@ -108,12 +108,12 @@ const UpgradeProposalForm = () => {
                 <div className="space-y-4">
                     <FormField
                         control={form.control}
-                        name="newLoanAmount"
+                        name="newMonthlyLoanPayment"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>New Loan Amount ($)</FormLabel>
+                            <FormLabel>New Monthly Loan Payment ($)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="25000" {...field} />
+                                <Input type="number" placeholder="350" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>

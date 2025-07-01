@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from './ui/badge';
 import { ArrowDown, ArrowUp, CheckCircle, Minus, XCircle } from 'lucide-react';
 import { ComparisonItem } from '@/types';
-import { calculateMonthlyPayment, calculateFutureValue } from '@/lib/financial';
+import { calculateFutureValue } from '@/lib/financial';
 import { cn, getTierBadgeClass } from '@/lib/utils';
 
 const DEEDED_INFLATION = 8;
@@ -15,7 +15,7 @@ const ComparisonTable = () => {
     const { ownerProfile, upgradeProposal, rewardsCalculator, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
     const currentMonthlyLoan = ownerProfile.currentMonthlyLoanPayment || 0;
-    const newMonthlyLoan = calculateMonthlyPayment(upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm);
+    const newMonthlyLoan = upgradeProposal.newMonthlyLoanPayment || 0;
 
     const currentMonthlyMf = ownerProfile.maintenanceFee || 0;
     const newMonthlyMf = upgradeProposal.projectedMF || 0;

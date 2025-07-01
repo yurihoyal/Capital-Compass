@@ -21,7 +21,7 @@ export type OwnerProfile = z.infer<typeof OwnerProfileSchema>;
 export const UpgradeProposalSchema = z.object({
   newPointsAdded: z.coerce.number().min(0),
   convertedDeedsToPoints: z.coerce.number().min(0),
-  newLoanAmount: z.coerce.number().min(0),
+  newMonthlyLoanPayment: z.coerce.number().min(0),
   newLoanTerm: z.coerce.number().min(0),
   newLoanInterestRate: z.coerce.number().min(0).max(100),
   projectedMF: z.coerce.number().min(0),

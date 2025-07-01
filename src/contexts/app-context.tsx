@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { OwnerProfile, UpgradeProposal, RewardsCalculatorData, TravelServicesCalculatorData } from '@/types';
-import { generateCostProjection, generateCurrentPathProjection, calculateMonthlyPayment } from '@/lib/financial';
+import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
 
 const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
@@ -48,7 +48,7 @@ const initialCoreState: AppState = {
   upgradeProposal: {
     newPointsAdded: 150000,
     convertedDeedsToPoints: 0,
-    newLoanAmount: 25000,
+    newMonthlyLoanPayment: 350,
     newLoanTerm: 120,
     newLoanInterestRate: 7.5,
     projectedMF: 208,
@@ -147,7 +147,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         projectionYears,
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
         ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0,
-        (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
+        (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
+        upgradeProposal.newMonthlyLoanPayment || 0, 
+        upgradeProposal.newLoanTerm,
         totalAnnualOffset
     );
 
