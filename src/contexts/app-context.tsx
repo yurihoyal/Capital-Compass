@@ -44,7 +44,7 @@ const initialOwnerProfile: OwnerProfile = {
 };
 
 const initialUpgradeProposal: UpgradeProposal = {
-  newPointsAdded: 50000,
+  newPointsAdded: 150000,
   convertedDeedsToPoints: 0,
   newLoanAmount: 25000,
   newLoanTerm: 120,
@@ -53,13 +53,7 @@ const initialUpgradeProposal: UpgradeProposal = {
 };
 
 const initialRewardsCalculator: RewardsCalculatorData = {
-    totalAnnualSpend: 20000,
-    percentAt5x: 10,
-    percentAt2x: 20,
-    overrideRewardsPoints: 0,
-    percentAt1x: 70,
-    baseRewards: 0,
-    bonusRewards: 0,
+    monthlySpend: 1500,
     totalRewards: 0,
     annualCredit: 0,
     monthlyCredit: 0,
@@ -129,26 +123,13 @@ function appReducer(state: AppState, action: Action): AppState {
         const { ownerProfile, upgradeProposal, rewardsCalculator, projectionYears, usePointOffset } = state;
         
         // --- Rewards Calculation ---
-        const spend5x = rewardsCalculator.totalAnnualSpend * (rewardsCalculator.percentAt5x / 100);
-        const spend2x = rewardsCalculator.totalAnnualSpend * (rewardsCalculator.percentAt2x / 100);
-        const percentAt1x = Math.max(0, 100 - rewardsCalculator.percentAt5x - rewardsCalculator.percentAt2x);
-        const spend1x = rewardsCalculator.totalAnnualSpend * (percentAt1x / 100);
-
-        let baseRewards = (spend5x * 5) + (spend2x * 2) + (spend1x * 1);
-        if (rewardsCalculator.overrideRewardsPoints && rewardsCalculator.overrideRewardsPoints > 0) {
-            baseRewards = rewardsCalculator.overrideRewardsPoints;
-        }
-        
-        const bonusRewards = baseRewards * 0.05;
-        const totalRewards = baseRewards + bonusRewards;
-        const annualCredit = totalRewards * 0.01;
+        const { monthlySpend } = rewardsCalculator;
+        const totalRewards = (monthlySpend || 0) * 12 * 4;
+        const annualCredit = totalRewards * 0.05;
         const monthlyCredit = annualCredit / 12;
 
         const calculatedRewards: RewardsCalculatorData = {
             ...rewardsCalculator,
-            percentAt1x,
-            baseRewards,
-            bonusRewards,
             totalRewards,
             annualCredit,
             monthlyCredit
@@ -159,7 +140,7 @@ function appReducer(state: AppState, action: Action): AppState {
             ? (ownerProfile.deedPointValue || 0) 
             : (ownerProfile.currentPoints || 0);
 
-        const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.convertedDeedsToPoints || 0) + (upgradeProposal.newPointsAdded || 0);
+        const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0);
 
         const currentMfInflation = ownerProfile.mfInflationRate;
         const newMfInflation = CLUB_INFLATION;
@@ -214,10 +195,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [
     ownerProfile,
     upgradeProposal,
-    rewardsCalculator.totalAnnualSpend,
-    rewardsCalculator.percentAt2x,
-    rewardsCalculator.percentAt5x,
-    rewardsCalculator.overrideRewardsPoints,
+    rewardsCalculator.monthlySpend,
     projectionYears,
     usePointOffset,
     dispatch
@@ -237,5 +215,3 @@ export function useAppContext() {
   }
   return context;
 }
-
-    
