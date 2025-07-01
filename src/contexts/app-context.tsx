@@ -25,7 +25,7 @@ interface AppState {
 // This interface includes the calculated values
 interface FullAppState extends AppState {
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
-  currentPathProjection: { year: number; "Maintenance Fees": number; "Loan Payments": number; cumulativeCost: number; }[];
+  currentPathProjection: { year: number; maintenanceFees: number; loanPayments: number; monthlyMf: number; monthlyLoan: number; cumulativeCost: number; }[];
   currentPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
@@ -59,8 +59,6 @@ const initialCoreState: AppState = {
   },
   travelServicesCalculator: {
       pointsForTravel: 0,
-      outOfPocketSpend: 0,
-      applyToProjection: false,
   },
   projectionYears: 10,
   usePointOffset: false,
@@ -121,10 +119,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const calculatedRewards: RewardsCalculatorData = { ...rewardsCalculator, totalRewards, annualCredit, monthlyCredit };
 
     // --- Travel Services Calculation ---
-    const { pointsForTravel, outOfPocketSpend, applyToProjection } = travelServicesCalculator;
+    const { pointsForTravel } = travelServicesCalculator;
     const cashValueOfPoints = (pointsForTravel || 0) * 0.02;
-    const estimatedSavings = Math.max(0, (outOfPocketSpend || 0) - cashValueOfPoints);
-    const calculatedTravelServices: TravelServicesCalculatorData = { ...travelServicesCalculator, cashValueOfPoints, estimatedSavings };
+    const calculatedTravelServices: TravelServicesCalculatorData = { ...travelServicesCalculator, cashValueOfPoints };
     
     // --- Points and Projections ---
     const startingPoints = ownerProfile.ownershipType === 'Deeded Only'
@@ -137,10 +134,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
     let totalAnnualOffset = pointOffsetCredit + (calculatedRewards.annualCredit || 0);
 
-    if (applyToProjection) {
-        totalAnnualOffset += (calculatedTravelServices.estimatedSavings || 0);
-    }
-    
     const costProjectionData = generateCostProjection(
         projectionYears,
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
