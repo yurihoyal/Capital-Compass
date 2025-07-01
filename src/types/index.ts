@@ -29,13 +29,24 @@ export const UpgradeProposalSchema = z.object({
 });
 export type UpgradeProposal = z.infer<typeof UpgradeProposalSchema>;
 
-export const CreditCardRewardsSchema = z.object({
-  estimatedAnnualSpend: z.coerce.number().min(0),
-  redemptionType: z.enum(redemptionTypes),
-  rewardRate: z.coerce.number().min(0),
-  calculatedSavings: z.coerce.number().min(0).optional(),
+export const RewardsCalculatorSchema = z.object({
+  totalAnnualSpend: z.coerce.number().min(0),
+  percentAt5x: z.coerce.number().min(0).max(100),
+  percentAt2x: z.coerce.number().min(0).max(100),
+  overrideRewardsPoints: z.coerce.number().min(0).optional().default(0),
+  // Calculated fields (not part of the form validation itself)
+  percentAt1x: z.coerce.number().min(0).max(100).optional(),
+  baseRewards: z.coerce.number().min(0).optional(),
+  bonusRewards: z.coerce.number().min(0).optional(),
+  totalRewards: z.coerce.number().min(0).optional(),
+  annualCredit: z.coerce.number().min(0).optional(),
+  monthlyCredit: z.coerce.number().min(0).optional(),
+}).refine(data => (data.percentAt5x + data.percentAt2x) <= 100, {
+    message: "Sum of 5x and 2x percentages cannot exceed 100%",
+    path: ["percentAt2x"], // Can be assigned to any of the fields
 });
-export type CreditCardRewards = z.infer<typeof CreditCardRewardsSchema>;
+export type RewardsCalculatorData = z.infer<typeof RewardsCalculatorSchema>;
+
 
 export interface ComparisonItem {
     feature: string;
@@ -43,3 +54,5 @@ export interface ComparisonItem {
     new: string | number | React.ReactNode;
     sentiment?: 'positive' | 'negative' | 'neutral';
 }
+
+    

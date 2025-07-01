@@ -8,7 +8,7 @@ import { Separator } from './ui/separator';
 
 const RecapSheet = () => {
     const { state } = useAppContext();
-    const { ownerProfile, creditCardRewards, costProjectionData, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
+    const { ownerProfile, rewardsCalculator, costProjectionData, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
     const handlePrint = () => {
         window.print();
@@ -84,7 +84,7 @@ const RecapSheet = () => {
                                     <p className="text-4xl font-bold text-success">${costDifference20Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                 </div>
                             </div>
-                             <p className="text-center text-muted-foreground pt-2">Includes projected MF inflation and credit card rewards of an estimated ${ (creditCardRewards.calculatedSavings || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}/year.</p>
+                             <p className="text-center text-muted-foreground pt-2">Includes projected MF inflation and credit card rewards of an estimated ${ (rewardsCalculator.annualCredit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}/year.</p>
                         </div>
                     </CardContent>
                     <CardFooter>
@@ -107,3 +107,5 @@ const RecapSheet = () => {
 };
 
 export default RecapSheet;
+
+    

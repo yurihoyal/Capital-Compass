@@ -47,7 +47,7 @@ const UpgradeProposalForm = () => {
                             <FormItem>
                             <FormLabel>New Points Added</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="50000" {...field} />
+                                <Input type="number" placeholder="150000" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>

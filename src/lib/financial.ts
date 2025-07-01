@@ -46,18 +46,18 @@ export function generateCostProjection(
         const inflatedNewMf = newMf * Math.pow(1 + newMfInflation / 100, i - 1);
         
         cumulativeCurrentMf += inflatedCurrentMf;
-        cumulativeNewMf += Math.max(0, inflatedNewMf - annualNewCostOffset); 
+        cumulativeNewMf += inflatedNewMf;
 
         const totalCurrentLoanPaid = currentMonthlyLoanPayment * Math.min(i * 12, currentLoanTermRemainingMonths);
         const totalNewLoanPaid = newMonthlyLoanPayment * Math.min(i * 12, newLoanTermMonths);
         
         const totalCurrentCost = cumulativeCurrentMf + totalCurrentLoanPaid + currentSpecialAssessment;
-        const totalNewCost = cumulativeNewMf + totalNewLoanPaid;
+        const totalNewCost = (cumulativeNewMf + totalNewLoanPaid) - (annualNewCostOffset * i);
         
         data.push({
             year: i,
             currentCost: Math.round(totalCurrentCost),
-            newCost: Math.round(totalNewCost),
+            newCost: Math.round(Math.max(0, totalNewCost)),
         });
     }
 
@@ -101,3 +101,5 @@ export function generateCurrentPathProjection(
 
     return { projection, summary };
 }
+
+    

@@ -26,7 +26,7 @@ const getTierBadgeClass = (tier: string) => {
 
 const ComparisonTable = () => {
     const { state } = useAppContext();
-    const { ownerProfile, upgradeProposal, creditCardRewards, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
+    const { ownerProfile, upgradeProposal, rewardsCalculator, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
     const currentMonthlyLoan = calculateMonthlyPayment(ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm);
     const newMonthlyLoan = calculateMonthlyPayment(upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm);
@@ -35,8 +35,8 @@ const ComparisonTable = () => {
     const newMonthlyMf = upgradeProposal.projectedMF / 12;
 
     const currentMonthlyTotal = currentMonthlyLoan + currentMonthlyMf;
-    const newMonthlyTotal = newMonthlyLoan + newMonthlyMf - (creditCardRewards.calculatedSavings || 0) / 12;
-    
+    const newMonthlyTotal = newMonthlyLoan + newMonthlyMf - (rewardsCalculator.monthlyCredit || 0);
+
     const mfCost10YearsCurrent = calculateFutureValue(ownerProfile.maintenanceFee, ownerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION, 10) * 10;
     const mfCost10YearsNew = calculateFutureValue(upgradeProposal.projectedMF, CLUB_INFLATION, 10) * 10;
     
@@ -84,7 +84,7 @@ const ComparisonTable = () => {
         {
             feature: 'Credit Card Offset',
             now: <span className="text-muted-foreground">N/A</span>,
-            new: <span className="text-success">-${((creditCardRewards.calculatedSavings || 0) / 12).toFixed(2)}/mo</span>,
+            new: <span className="text-success">-${(rewardsCalculator.monthlyCredit || 0).toFixed(2)}/mo</span>,
             sentiment: 'positive'
         }
     ];
@@ -124,3 +124,5 @@ const ComparisonTable = () => {
 };
 
 export default ComparisonTable;
+
+    
