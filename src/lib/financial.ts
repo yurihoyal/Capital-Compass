@@ -76,7 +76,8 @@ export function generateCurrentPathProjection(
 
     for (let i = 1; i <= years; i++) {
         const inflatedMfForYear = mf * Math.pow(1 + mfInflation / 100, i - 1);
-        const loanPaidForYear = monthlyLoanPayment * (Math.min(i * 12, loanTermRemainingMonths) - Math.min((i - 1) * 12, loanTermRemainingMonths));
+        const paymentsInYear = Math.min(i * 12, loanTermRemainingMonths) - Math.min((i - 1) * 12, loanTermRemainingMonths);
+        const loanPaidForYear = monthlyLoanPayment * paymentsInYear;
         
         cumulativeMf += inflatedMfForYear;
         cumulativeLoanPaid += loanPaidForYear;
@@ -85,6 +86,8 @@ export function generateCurrentPathProjection(
             year: i,
             'Maintenance Fees': Math.round(inflatedMfForYear),
             'Loan Payments': Math.round(loanPaidForYear),
+            'monthlyMf': inflatedMfForYear / 12,
+            'monthlyLoan': paymentsInYear > 0 ? monthlyLoanPayment : 0,
             cumulativeCost: Math.round(cumulativeMf + cumulativeLoanPaid + specialAssessment)
         });
     }

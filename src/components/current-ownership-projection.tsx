@@ -5,18 +5,52 @@ import { useAppContext } from '@/contexts/app-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartContainer, ChartTooltipContent, type ChartConfig } from './ui/chart';
+import { ChartContainer, type ChartConfig } from './ui/chart';
 
+// Colors updated as per request: MF=red (destructive), Loan=blue (chart-1)
 const chartConfig = {
   "Maintenance Fees": {
     label: "Maintenance Fees",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--destructive))",
   },
   "Loan Payments": {
     label: "Loan Payments",
-    color: "hsl(var(--destructive))",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
+
+// Custom tooltip component to show monthly breakdown
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const monthlyMf = data.monthlyMf || 0;
+    const monthlyLoan = data.monthlyLoan || 0;
+    const totalMonthly = monthlyMf + monthlyLoan;
+
+    return (
+      <div className="p-3 bg-background/90 border rounded-lg shadow-lg text-sm backdrop-blur-sm">
+        <p className="label font-bold mb-2">{`Year ${label}`}</p>
+        <div className="space-y-1">
+            <p className="text-destructive flex justify-between items-center">
+                <span>Monthly MF:</span>
+                <span className="font-semibold ml-2">${monthlyMf.toFixed(2)}</span>
+            </p>
+            {monthlyLoan > 0 && (
+                <p style={{ color: 'hsl(var(--chart-1))' }} className="flex justify-between items-center">
+                    <span>Monthly Loan:</span>
+                    <span className="font-semibold ml-2">${monthlyLoan.toFixed(2)}</span>
+                </p>
+            )}
+        </div>
+        <p className="intro font-bold mt-2 border-t pt-2 flex justify-between items-center">
+            <span>Total Monthly Cost:</span>
+            <span>${totalMonthly.toFixed(2)}</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const CurrentOwnershipProjection = () => {
   const { state, dispatch } = useAppContext();
@@ -58,7 +92,7 @@ const CurrentOwnershipProjection = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="year" unit=" yr" />
                     <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} width={80} />
-                    <Tooltip content={<ChartTooltipContent indicator="dot" />} />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend />
                     <Area type="monotone" dataKey="Maintenance Fees" stackId="1" name="Maintenance Fees" strokeWidth={2} stroke="var(--color-Maintenance Fees)" fillOpacity={1} fill="url(#colorMf)" />
                     <Area type="monotone" dataKey="Loan Payments" stackId="1" name="Loan Payments" strokeWidth={2} stroke="var(--color-Loan Payments)" fillOpacity={1} fill="url(#colorLoan)" />
