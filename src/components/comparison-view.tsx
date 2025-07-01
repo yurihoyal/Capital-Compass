@@ -9,6 +9,7 @@ import VipBenefitsDisplay from './vip-benefits-display';
 import { useAppContext } from '@/contexts/app-context';
 import VipValueCalculator from './vip-value-calculator';
 import TravelServicesValueCalculator from './travel-services-value-calculator';
+import OwnerAssistanceCalculator from './owner-assistance-calculator';
 
 const ComparisonView = () => {
   const { state } = useAppContext();
@@ -37,9 +38,10 @@ const ComparisonView = () => {
       
       <VipValueCalculator />
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8 items-start">
         <CreditCardModule />
         <TravelServicesValueCalculator />
+        <OwnerAssistanceCalculator />
       </div>
     </div>
   );
