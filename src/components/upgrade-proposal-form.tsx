@@ -12,27 +12,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 const UpgradeProposalForm = () => {
   const { state, dispatch } = useAppContext();
-  const isClubMember = state.ownerProfile.ownershipType === 'Capital Club Member';
+  const isDeededOwner = state.ownerProfile.ownershipType === 'Deeded Only';
 
   const form = useForm<UpgradeProposal>({
     resolver: zodResolver(UpgradeProposalSchema),
     defaultValues: state.upgradeProposal,
   });
 
-  const { watch, reset } = form;
+  const { reset, getValues } = form;
 
   useEffect(() => {
     reset(state.upgradeProposal);
   }, [state.upgradeProposal, reset]);
 
-  useEffect(() => {
-    const subscription = watch((value, { type }) => {
-      if (type) { // Only dispatch on user input, not programmatic changes like `reset`
-        dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: value as UpgradeProposal });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, dispatch]);
+  const handleFormChange = () => {
+    dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: getValues() });
+  };
 
   return (
     <Card>
@@ -42,7 +37,7 @@ const UpgradeProposalForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-8">
+          <form className="space-y-8" onChange={handleFormChange}>
             <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                     <FormField
@@ -58,7 +53,7 @@ const UpgradeProposalForm = () => {
                             </FormItem>
                         )}
                     />
-                    {isClubMember && (
+                    {!isDeededOwner && (
                       <FormField
                           control={form.control}
                           name="convertedDeedsToPoints"
