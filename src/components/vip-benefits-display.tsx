@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Check, XCircle, Star } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 
 type VipTier = 'Deeded' | 'Preferred' | 'Silver' | 'Gold' | 'Platinum' | string;
 type BenefitStatus = 'positive' | 'negative' | 'special' | 'neutral';
@@ -136,25 +137,29 @@ const VipBenefitsDisplay: React.FC<VipBenefitsDisplayProps> = ({ tier, title }) 
     const tierBenefits = benefitsData[tier];
 
     return (
-        <Card className="h-full">
+        <Card className="h-[600px] flex flex-col">
             <CardHeader>
                 <CardTitle className="font-headline text-xl">{title}</CardTitle>
                 <CardDescription>Benefits for the {tier} tier</CardDescription>
             </CardHeader>
-            <CardContent>
-                {tier === 'Deeded' ? (
-                    <DeededAlert />
-                ) : (
-                    tierBenefits ? (
-                         <ul className="space-y-3">
-                            {tierBenefits.map(benefit => (
-                                <BenefitItem key={benefit.name} benefit={benefit} />
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-muted-foreground">Benefit information not available for this tier.</p>
-                    )
-                )}
+            <CardContent className="flex-1 overflow-hidden p-0">
+                <ScrollArea className="h-full">
+                    <div className="p-6 pt-0">
+                        {tier === 'Deeded' ? (
+                            <DeededAlert />
+                        ) : (
+                            tierBenefits ? (
+                                <ul className="space-y-3">
+                                    {tierBenefits.map(benefit => (
+                                        <BenefitItem key={benefit.name} benefit={benefit} />
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-muted-foreground">Benefit information not available for this tier.</p>
+                            )
+                        )}
+                    </div>
+                </ScrollArea>
             </CardContent>
         </Card>
     );
