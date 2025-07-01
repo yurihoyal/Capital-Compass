@@ -7,6 +7,7 @@ import ComparisonTable from './comparison-table';
 import FinancialTrendGraph from './financial-trend-graph';
 import VipBenefitsDisplay from './vip-benefits-display';
 import { useAppContext } from '@/contexts/app-context';
+import VipValueCalculator from './vip-value-calculator';
 
 const ComparisonView = () => {
   const { state } = useAppContext();
@@ -39,6 +40,7 @@ const ComparisonView = () => {
             <CreditCardModule />
         </div>
       </div>
+      <VipValueCalculator />
     </div>
   );
 };
