@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from './ui/separator';
+import { Label } from './ui/label';
 
 const TravelServicesValueCalculator = () => {
     const { state, dispatch } = useAppContext();
@@ -100,11 +101,11 @@ const TravelServicesValueCalculator = () => {
                 <div className="space-y-4 mt-6">
                     <div className="grid grid-cols-2 gap-4 text-center">
                         <div className="p-3 bg-muted rounded-lg">
-                            <FormLabel>Cash Value of Points</FormLabel>
+                            <Label>Cash Value of Points</Label>
                             <p className="text-2xl font-bold">{formatCurrency(travelServicesCalculator.cashValueOfPoints || 0)}</p>
                         </div>
                         <div className="p-3 bg-muted rounded-lg">
-                            <FormLabel>Estimated Annual Savings</FormLabel>
+                            <Label>Estimated Annual Savings</Label>
                             <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(travelServicesCalculator.estimatedSavings || 0)}</p>
                         </div>
                     </div>
@@ -123,15 +124,15 @@ const TravelServicesValueCalculator = () => {
                         <p className="text-sm font-semibold text-center">Cumulative Savings Over Time</p>
                         <div className="grid grid-cols-3 gap-2 text-center">
                             <div className="p-2 border rounded-lg">
-                                <FormLabel>10 Years</FormLabel>
+                                <Label>10 Years</Label>
                                 <p className="text-lg font-bold">{formatCurrency(savings10)}</p>
                             </div>
                             <div className="p-2 border rounded-lg">
-                                <FormLabel>15 Years</FormLabel>
+                                <Label>15 Years</Label>
                                 <p className="text-lg font-bold">{formatCurrency(savings15)}</p>
                             </div>
                             <div className="p-2 border rounded-lg">
-                                <FormLabel>20 Years</FormLabel>
+                                <Label>20 Years</Label>
                                 <p className="text-lg font-bold">{formatCurrency(savings20)}</p>
                             </div>
                         </div>
