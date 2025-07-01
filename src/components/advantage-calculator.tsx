@@ -23,37 +23,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-// Custom tooltip component to show monthly breakdown
-const CustomAdvantageTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    const currentMonthly = Number(data.currentMonthlyCost || 0);
-    const newMonthly = Number(data.newMonthlyCost || 0);
-
-    return (
-      <div className="p-3 bg-background/90 border rounded-lg shadow-lg text-sm backdrop-blur-sm">
-        <p className="label font-bold mb-2">{`Year ${label}`}</p>
-        <div className="space-y-1">
-            <p className="flex justify-between items-center" style={{ color: 'hsl(var(--destructive))' }}>
-                <span>Current Monthly Cost:</span>
-                <span className="font-semibold ml-2">${currentMonthly.toFixed(2)}</span>
-            </p>
-            <p className="flex justify-between items-center" style={{ color: 'hsl(var(--chart-1))' }}>
-                <span>Upgrade Monthly Cost:</span>
-                <span className="font-semibold ml-2">${newMonthly.toFixed(2)}</span>
-            </p>
-        </div>
-        <p className="intro font-bold mt-2 border-t pt-2 flex justify-between items-center">
-            <span>Monthly Savings:</span>
-            <span className="text-green-600 dark:text-green-400 font-semibold ml-2">${(currentMonthly - newMonthly).toFixed(2)}</span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-
 const AdvantageCalculator = () => {
     const { state, dispatch } = useAppContext();
     const { costProjectionData, projectionYears, usePointOffset } = state;
@@ -117,7 +86,7 @@ const AdvantageCalculator = () => {
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis dataKey="year" unit=" yr" />
                                         <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} width={80} />
-                                        <Tooltip content={<CustomAdvantageTooltip />} />
+                                        <Tooltip />
                                         <Legend />
                                         <Area type="monotone" dataKey="currentCost" name="Current Path" strokeWidth={2} stroke="var(--color-currentCost)" fillOpacity={1} fill="url(#colorCurrentAdv)" />
                                         <Area type="monotone" dataKey="newCost" name="Upgrade Path" strokeWidth={2} stroke="var(--color-newCost)" fillOpacity={1} fill="url(#colorNewAdv)" />
