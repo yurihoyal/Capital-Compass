@@ -54,20 +54,15 @@ const ComparisonTable = () => {
         },
         {
             feature: 'Points',
-            now: ownerProfile.currentPoints.toLocaleString(),
+            now: ownerProfile.ownershipType === 'Deeded Only' ? (ownerProfile.deedPointValue || 0).toLocaleString() : ownerProfile.currentPoints.toLocaleString(),
             new: (totalPointsAfterUpgrade || 0).toLocaleString(),
             sentiment: getSentiment(ownerProfile.currentPoints, totalPointsAfterUpgrade || 0, false)
         },
         {
-            feature: 'Booking Window',
-            now: `${ownerProfile.ownershipType === 'Deeded Only' ? 'Up to 12' : 'Up to 10'} months`,
-            new: 'Up to 12 months',
-            sentiment: ownerProfile.ownershipType === 'Deeded Only' ? 'neutral' : 'positive'
-        },
-        {
-            feature: 'Exit Strategy',
-            now: ownerProfile.ownershipType === 'Deeded Only' ? <span className="text-destructive flex items-center gap-2"><XCircle size={16}/> In Perpetuity</span> : <span className="text-success flex items-center gap-2"><CheckCircle size={16}/> Flexible</span>,
-            new: <span className="text-success flex items-center gap-2"><CheckCircle size={16}/> Flexible</span>,
+            feature: 'Ownership Type',
+            now: ownerProfile.ownershipType,
+            new: 'Capital Club Member',
+            sentiment: ownerProfile.ownershipType === 'Deeded Only' ? 'positive' : 'neutral'
         },
         {
             feature: 'Monthly Cost',
