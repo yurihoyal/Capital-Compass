@@ -94,9 +94,10 @@ const OwnerProfileForm = () => {
   const { watch, control, setValue, reset, getValues } = form;
   const ownershipType = watch('ownershipType');
 
+  const ownerProfileString = JSON.stringify(state.ownerProfile);
   useEffect(() => {
     reset(state.ownerProfile);
-  }, [state.ownerProfile, reset]);
+  }, [ownerProfileString, reset]);
 
   const handleFormChange = () => {
       // Debounce or onBlur logic can be added here if needed

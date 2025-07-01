@@ -20,11 +20,12 @@ const UpgradeProposalForm = () => {
     defaultValues: state.upgradeProposal,
   });
 
-  const { reset, getValues } = form;
+  const { reset, getValues, control } = form;
 
+  const upgradeProposalString = JSON.stringify(state.upgradeProposal);
   useEffect(() => {
     reset(state.upgradeProposal);
-  }, [state.upgradeProposal, reset]);
+  }, [upgradeProposalString, reset]);
 
   const handleFormChange = () => {
     dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: getValues() });

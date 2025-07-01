@@ -24,9 +24,10 @@ const RewardsSavingsCalculator = () => {
     
     const { reset, getValues } = form;
 
+    const rewardsCalculatorString = JSON.stringify(rewardsCalculator);
     useEffect(() => {
         reset(rewardsCalculator);
-    }, [rewardsCalculator, reset]);
+    }, [rewardsCalculatorString, reset]);
 
     const handleFormChange = () => {
         dispatch({ type: 'UPDATE_REWARDS_CALCULATOR', payload: getValues() });
@@ -89,7 +90,7 @@ const RewardsSavingsCalculator = () => {
 
                     <div className="mt-4 text-center p-4 rounded-lg border">
                         <p className="text-sm text-muted-foreground">Monthly Maintenance Fee Offset</p>
-                        <p className="text-3xl font-bold text-success">
+                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                             ${(rewardsCalculator.monthlyCredit || 0).toFixed(2)}
                         </p>
                         <p className="text-sm text-muted-foreground">(Annual Credit: ${(rewardsCalculator.annualCredit || 0).toFixed(2)})</p>

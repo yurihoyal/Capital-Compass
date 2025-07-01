@@ -22,9 +22,10 @@ const TravelServicesValueCalculator = () => {
     
     const { control, reset, getValues, setValue } = form;
 
+    const travelServicesCalculatorString = JSON.stringify(travelServicesCalculator);
     useEffect(() => {
         reset(travelServicesCalculator);
-    }, [travelServicesCalculator, reset]);
+    }, [travelServicesCalculatorString, reset]);
 
     const handleFormChange = () => {
         dispatch({ type: 'UPDATE_TRAVEL_SERVICES_CALCULATOR', payload: getValues() });
