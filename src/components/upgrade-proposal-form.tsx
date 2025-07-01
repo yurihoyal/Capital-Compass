@@ -9,10 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Slider } from './ui/slider';
 
 const UpgradeProposalForm = () => {
   const { state, dispatch } = useAppContext();
-  const isDeededOwner = state.ownerProfile.ownershipType === 'Deeded Only';
+  const isClubMember = state.ownerProfile.ownershipType === 'Capital Club Member';
 
   const form = useForm<UpgradeProposal>({
     resolver: zodResolver(UpgradeProposalSchema),
@@ -53,7 +54,7 @@ const UpgradeProposalForm = () => {
                             </FormItem>
                         )}
                     />
-                    {!isDeededOwner && (
+                    {isClubMember && (
                       <FormField
                           control={form.control}
                           name="convertedDeedsToPoints"
@@ -76,6 +77,25 @@ const UpgradeProposalForm = () => {
                             <FormLabel>Projected Annual Maintenance Fee ($)</FormLabel>
                             <FormControl>
                                 <Input type="number" placeholder="2500" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="newMfInflationRate"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>New MF Inflation Rate ({field.value}%)</FormLabel>
+                            <FormControl>
+                                <Slider
+                                    min={1}
+                                    max={30}
+                                    step={1}
+                                    value={[field.value]}
+                                    onValueChange={(value) => field.onChange(value[0])}
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>

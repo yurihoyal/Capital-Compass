@@ -26,6 +26,7 @@ export const UpgradeProposalSchema = z.object({
   newLoanTerm: z.coerce.number().min(0),
   newLoanInterestRate: z.coerce.number().min(0).max(100),
   projectedMF: z.coerce.number().min(0),
+  newMfInflationRate: z.coerce.number().min(1).max(30),
 });
 export type UpgradeProposal = z.infer<typeof UpgradeProposalSchema>;
 

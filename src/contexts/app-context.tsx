@@ -32,15 +32,15 @@ interface AppState {
 const initialOwnerProfile: OwnerProfile = {
   ownerName: 'John & Jane Smith',
   ownerId: '123456',
-  ownershipType: 'Capital Club Member', 
-  deedPointValue: 0,
-  currentPoints: 150000,
+  ownershipType: 'Deeded Only',
+  deedPointValue: 150000,
+  currentPoints: 0,
   maintenanceFee: 2000,
   specialAssessment: 0,
   currentLoanBalance: 10000,
   currentLoanInterestRate: 8.5,
   currentLoanTerm: 60,
-  mfInflationRate: 3,
+  mfInflationRate: 8,
 };
 
 const initialUpgradeProposal: UpgradeProposal = {
@@ -50,6 +50,7 @@ const initialUpgradeProposal: UpgradeProposal = {
   newLoanTerm: 120,
   newLoanInterestRate: 7.5,
   projectedMF: 2500,
+  newMfInflationRate: 3,
 };
 
 const initialRewardsCalculator: RewardsCalculatorData = {
@@ -60,19 +61,23 @@ const initialRewardsCalculator: RewardsCalculatorData = {
 };
 
 // Calculate derived initial values
-const initialTotalPointsAfterUpgrade = initialOwnerProfile.currentPoints + initialUpgradeProposal.newPointsAdded + initialUpgradeProposal.convertedDeedsToPoints;
+const initialStartingPoints = initialOwnerProfile.ownershipType === 'Deeded Only'
+    ? (initialOwnerProfile.deedPointValue || 0)
+    : (initialOwnerProfile.currentPoints || 0);
+
+const initialTotalPointsAfterUpgrade = initialStartingPoints + initialUpgradeProposal.newPointsAdded + initialUpgradeProposal.convertedDeedsToPoints;
 const initialCurrentPathData = generateCurrentPathProjection(10, initialOwnerProfile.maintenanceFee, initialOwnerProfile.mfInflationRate, initialOwnerProfile.specialAssessment, initialOwnerProfile.currentLoanBalance, initialOwnerProfile.currentLoanInterestRate, initialOwnerProfile.currentLoanTerm);
 
 const initialCostProjectionData = generateCostProjection(
-    10, 
+    10,
     initialOwnerProfile.maintenanceFee,
-    initialOwnerProfile.ownershipType === 'Deeded Only' ? DEEDED_INFLATION : CLUB_INFLATION,
+    initialOwnerProfile.mfInflationRate,
     initialOwnerProfile.specialAssessment,
     initialOwnerProfile.currentLoanBalance,
     initialOwnerProfile.currentLoanInterestRate,
     initialOwnerProfile.currentLoanTerm,
     initialUpgradeProposal.projectedMF,
-    CLUB_INFLATION,
+    initialUpgradeProposal.newMfInflationRate,
     initialUpgradeProposal.newLoanAmount,
     initialUpgradeProposal.newLoanInterestRate,
     initialUpgradeProposal.newLoanTerm,
@@ -89,7 +94,7 @@ const initialState: AppState = {
   projectionYears: 10,
   usePointOffset: false,
   totalPointsAfterUpgrade: initialTotalPointsAfterUpgrade,
-  currentVIPLevel: getVipTierFromPoints(initialOwnerProfile.currentPoints),
+  currentVIPLevel: getVipTierFromPoints(initialStartingPoints),
   projectedVIPLevel: getVipTierFromPoints(initialTotalPointsAfterUpgrade),
 };
 
@@ -136,14 +141,16 @@ function appReducer(state: AppState, action: Action): AppState {
         };
         // --- End Rewards Calculation ---
 
-        const startingPoints = ownerProfile.ownershipType === 'Deeded Only' 
-            ? (ownerProfile.deedPointValue || 0) 
+        const startingPoints = ownerProfile.ownershipType === 'Deeded Only'
+            ? (ownerProfile.deedPointValue || 0)
             : (ownerProfile.currentPoints || 0);
 
-        const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0) + (upgradeProposal.convertedDeedsToPoints || 0);
+        const newPointsFromDeeds = ownerProfile.ownershipType === 'Capital Club Member' ? (upgradeProposal.convertedDeedsToPoints || 0) : 0;
+
+        const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0) + newPointsFromDeeds;
 
         const currentMfInflation = ownerProfile.mfInflationRate;
-        const newMfInflation = CLUB_INFLATION;
+        const newMfInflation = upgradeProposal.newMfInflationRate;
         
         const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
         const totalAnnualOffset = pointOffsetCredit + annualCredit;

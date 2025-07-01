@@ -39,14 +39,14 @@ const AdvantageCalculator = () => {
         dispatch({ type: 'SET_USE_POINT_OFFSET', payload: checked });
     };
 
-    const getAveragePointsPerVacation = (ownershipType: 'Deeded' | 'Club', vipLevel: string) => {
-        const basePoints = ownershipType === 'Deeded' ? 60000 : 50000;
+    const getAveragePointsPerVacation = (ownershipType: 'Deeded Only' | 'Capital Club Member' | 'Club', vipLevel: string) => {
+        const basePoints = ownershipType === 'Deeded Only' ? 60000 : 50000;
         const discount = { 'Preferred': 1, 'Silver': 0.95, 'Gold': 0.9, 'Platinum': 0.85 }[vipLevel] || 1;
         return basePoints * discount;
     }
 
     const avgPointsNow = getAveragePointsPerVacation(ownerProfile.ownershipType, currentVIPLevel);
-    const estimatedVacationsNow = ownerProfile.currentPoints / avgPointsNow;
+    const estimatedVacationsNow = (ownerProfile.ownershipType === 'Deeded Only' ? ownerProfile.deedPointValue : ownerProfile.currentPoints) / avgPointsNow;
 
     const avgPointsNew = getAveragePointsPerVacation('Club', projectedVIPLevel);
     const estimatedVacationsNew = totalPointsAfterUpgrade / avgPointsNew;
@@ -70,14 +70,12 @@ const AdvantageCalculator = () => {
         return total;
     }
     
-    const DEEDED_INFLATION = 8;
-    const CLUB_INFLATION = 3;
-    const currentMfInflation = ownerProfile.ownershipType === 'Deeded' ? DEEDED_INFLATION : CLUB_INFLATION;
+    const currentMfInflation = ownerProfile.mfInflationRate;
 
     const currentTotalMf = calculateCumulativeMf(ownerProfile.maintenanceFee, currentMfInflation, projectionYears);
-    const newTotalMf = calculateCumulativeMf(upgradeProposal.projectedMF, CLUB_INFLATION, projectionYears);
+    const newTotalMf = calculateCumulativeMf(upgradeProposal.projectedMF, upgradeProposal.newMfInflationRate, projectionYears);
 
-    const formatCurrency = (value) => value > 0 ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0';
+    const formatCurrency = (value: number) => value > 0 ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0';
 
     return (
         <div className="space-y-8">
@@ -94,7 +92,7 @@ const AdvantageCalculator = () => {
                      <Tabs defaultValue={String(projectionYears)} onValueChange={handleProjectionYearChange} className="w-[270px]">
                         <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="10">10 Years</TabsTrigger>
-                            <TabsTrigger value="15">15 Years</TabsTrigger>
+                            <TabsTrigger value="15">15 Years</T    absTrigger>
                             <TabsTrigger value="20">20 Years</TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -176,7 +174,7 @@ const AdvantageCalculator = () => {
                      <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-xl">Loan Cost Analysis</CardTitle>
-                        </CardHeader>
+                        </Header>
                         <CardContent>
                             <Table>
                                 <TableHeader>
@@ -201,7 +199,7 @@ const AdvantageCalculator = () => {
                     <Card>
                         <CardHeader>
                              <CardTitle className="font-headline text-xl">{projectionYears}-Year MF Projection</CardTitle>
-                        </CardHeader>
+                        </Header>
                         <CardContent className="text-center">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -212,7 +210,7 @@ const AdvantageCalculator = () => {
                                  <div>
                                     <Label>Upgrade Path</Label>
                                     <p className="text-3xl font-bold text-success">{formatCurrency(newTotalMf)}</p>
-                                     <p className="text-xs text-muted-foreground">Based on {CLUB_INFLATION}% annual inflation</p>
+                                     <p className="text-xs text-muted-foreground">Based on {upgradeProposal.newMfInflationRate}% annual inflation</p>
                                 </div>
                             </div>
                         </CardContent>
