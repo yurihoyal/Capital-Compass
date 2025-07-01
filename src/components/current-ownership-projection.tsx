@@ -7,20 +7,19 @@ import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartContainer, type ChartConfig } from './ui/chart';
 
-// Colors updated as per request: MF=red (destructive), Loan=blue (chart-1)
 const chartConfig = {
-  "Maintenance Fees": {
+  maintenanceFees: {
     label: "Maintenance Fees",
     color: "hsl(var(--destructive))",
   },
-  "Loan Payments": {
+  loanPayments: {
     label: "Loan Payments",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 
 // Custom tooltip component to show monthly breakdown
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const monthlyMf = Number(data.monthlyMf || 0);
@@ -81,12 +80,12 @@ const CurrentOwnershipProjection = () => {
                 <AreaChart data={currentPathProjection} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
                     <defs>
                         <linearGradient id="colorMf" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-Maintenance Fees)" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="var(--color-Maintenance Fees)" stopOpacity={0} />
+                            <stop offset="5%" stopColor="var(--color-maintenanceFees)" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="var(--color-maintenanceFees)" stopOpacity={0} />
                         </linearGradient>
                          <linearGradient id="colorLoan" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-Loan Payments)" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="var(--color-Loan Payments)" stopOpacity={0} />
+                            <stop offset="5%" stopColor="var(--color-loanPayments)" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="var(--color-loanPayments)" stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -94,8 +93,8 @@ const CurrentOwnershipProjection = () => {
                     <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} width={80} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend />
-                    <Area type="monotone" dataKey="Maintenance Fees" stackId="1" name="Maintenance Fees" strokeWidth={2} stroke="var(--color-Maintenance Fees)" fillOpacity={1} fill="url(#colorMf)" />
-                    <Area type="monotone" dataKey="Loan Payments" stackId="1" name="Loan Payments" strokeWidth={2} stroke="var(--color-Loan Payments)" fillOpacity={1} fill="url(#colorLoan)" />
+                    <Area type="monotone" dataKey="maintenanceFees" stackId="1" name="Maintenance Fees" strokeWidth={2} stroke="var(--color-maintenanceFees)" fillOpacity={1} fill="url(#colorMf)" />
+                    <Area type="monotone" dataKey="loanPayments" stackId="1" name="Loan Payments" strokeWidth={2} stroke="var(--color-loanPayments)" fillOpacity={1} fill="url(#colorLoan)" />
                 </AreaChart>
             </ChartContainer>
         </div>

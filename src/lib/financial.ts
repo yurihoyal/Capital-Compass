@@ -84,10 +84,10 @@ export function generateCurrentPathProjection(
 
         projection.push({
             year: i,
-            'Maintenance Fees': Math.round(inflatedMfForYear),
-            'Loan Payments': Math.round(loanPaidForYear),
-            'monthlyMf': inflatedMfForYear / 12,
-            'monthlyLoan': paymentsInYear > 0 ? monthlyLoanPayment : 0,
+            maintenanceFees: Math.round(inflatedMfForYear),
+            loanPayments: Math.round(loanPaidForYear),
+            monthlyMf: inflatedMfForYear / 12,
+            monthlyLoan: paymentsInYear > 0 ? monthlyLoanPayment : 0,
             cumulativeCost: Math.round(cumulativeMf + cumulativeLoanPaid + specialAssessment)
         });
     }
