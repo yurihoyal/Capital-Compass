@@ -3,16 +3,13 @@
 
 import React from 'react';
 import { useAppContext } from '@/contexts/app-context';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from './ui/chart';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from './ui/badge';
-import { calculateMonthlyPayment } from '@/lib/financial';
 import { Flame, Sparkles } from 'lucide-react';
 
 const chartConfig = {
@@ -26,10 +23,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-
 const AdvantageCalculator = () => {
     const { state, dispatch } = useAppContext();
-    const { ownerProfile, upgradeProposal, costProjectionData, projectionYears, usePointOffset, totalPointsAfterUpgrade, currentVIPLevel, projectedVIPLevel } = state;
+    const { costProjectionData, projectionYears, usePointOffset } = state;
 
     const handleProjectionYearChange = (value: string) => {
         dispatch({ type: 'SET_PROJECTION_YEARS', payload: parseInt(value, 10) as 10 | 15 | 20 });
@@ -38,44 +34,6 @@ const AdvantageCalculator = () => {
     const handleOffsetToggle = (checked: boolean) => {
         dispatch({ type: 'SET_USE_POINT_OFFSET', payload: checked });
     };
-
-    const getAveragePointsPerVacation = (ownershipType: 'Deeded Only' | 'Capital Club Member' | 'Club', vipLevel: string) => {
-        const basePoints = ownershipType === 'Deeded Only' ? 60000 : 50000;
-        const discount = { 'Preferred': 1, 'Silver': 0.95, 'Gold': 0.9, 'Platinum': 0.85 }[vipLevel] || 1;
-        return basePoints * discount;
-    }
-
-    const avgPointsNow = getAveragePointsPerVacation(ownerProfile.ownershipType, currentVIPLevel);
-    const estimatedVacationsNow = (ownerProfile.ownershipType === 'Deeded Only' ? ownerProfile.deedPointValue : ownerProfile.currentPoints) / avgPointsNow;
-
-    const avgPointsNew = getAveragePointsPerVacation('Club', projectedVIPLevel);
-    const estimatedVacationsNew = totalPointsAfterUpgrade / avgPointsNew;
-
-
-    const currentMonthlyPayment = calculateMonthlyPayment(ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm);
-    const currentTotalCost = currentMonthlyPayment * ownerProfile.currentLoanTerm;
-    const currentTotalInterest = currentTotalCost - ownerProfile.currentLoanBalance;
-
-    const newMonthlyPayment = calculateMonthlyPayment(upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm);
-    const newTotalCost = newMonthlyPayment * upgradeProposal.newLoanTerm;
-    const newTotalInterest = newTotalCost - upgradeProposal.newLoanAmount;
-
-    const calculateCumulativeMf = (initialMf: number, inflationRate: number, years: number) => {
-        let total = 0;
-        let current = initialMf;
-        for (let i = 0; i < years; i++) {
-            total += current;
-            current *= (1 + inflationRate / 100);
-        }
-        return total;
-    }
-    
-    const currentMfInflation = ownerProfile.mfInflationRate;
-
-    const currentTotalMf = calculateCumulativeMf(ownerProfile.maintenanceFee, currentMfInflation, projectionYears);
-    const newTotalMf = calculateCumulativeMf(upgradeProposal.projectedMF, upgradeProposal.newMfInflationRate, projectionYears);
-
-    const formatCurrency = (value: number) => value > 0 ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0';
 
     return (
         <div className="space-y-8">
@@ -100,7 +58,7 @@ const AdvantageCalculator = () => {
             </Card>
 
             <div className="grid lg:grid-cols-5 gap-8">
-                 <div className="lg:col-span-3 space-y-8">
+                 <div className="lg:col-span-5 space-y-8">
                      <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-xl">{projectionYears}-Year Ownership Cost Comparison</CardTitle>
@@ -151,70 +109,6 @@ const AdvantageCalculator = () => {
                             </AlertDescription>
                         </Alert>
                     </div>
-                 </div>
-
-                 <div className="lg:col-span-2 space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-xl">Vacation Estimator</CardTitle>
-                            <CardDescription>Estimated trips per year with your points.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <Label>Current Plan</Label>
-                                <p className="text-2xl font-bold">Up to {estimatedVacationsNow.toFixed(1)} vacations</p>
-                            </div>
-                             <div>
-                                <Label>Upgrade Plan</Label>
-                                <p className="text-2xl font-bold text-green-600 dark:text-green-400">Up to {estimatedVacationsNew.toFixed(1)} vacations</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-xl">Loan Cost Analysis</CardTitle>
-                        </Header>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Metric</TableHead>
-                                        <TableHead>Current</TableHead>
-                                        <TableHead>Upgrade</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <TableRow><TableCell>Loan Amount</TableCell><TableCell>{formatCurrency(ownerProfile.currentLoanBalance)}</TableCell><TableCell>{formatCurrency(upgradeProposal.newLoanAmount)}</TableCell></TableRow>
-                                    <TableRow><TableCell>Rate</TableCell><TableCell>{ownerProfile.currentLoanInterestRate}%</TableCell><TableCell>{upgradeProposal.newLoanInterestRate}%</TableCell></TableRow>
-                                    <TableRow><TableCell>Term</TableCell><TableCell>{ownerProfile.currentLoanTerm} mo</TableCell><TableCell>{upgradeProposal.newLoanTerm} mo</TableCell></TableRow>
-                                    <TableRow className="font-bold"><TableCell>Monthly Payment</TableCell><TableCell>{formatCurrency(currentMonthlyPayment)}</TableCell><TableCell>{formatCurrency(newMonthlyPayment)}</TableCell></TableRow>
-                                    <TableRow><TableCell>Total Interest</TableCell><TableCell>{formatCurrency(currentTotalInterest)}</TableCell><TableCell>{formatCurrency(newTotalInterest)}</TableCell></TableRow>
-                                    <TableRow><TableCell>Total Cost</TableCell><TableCell>{formatCurrency(currentTotalCost)}</TableCell><TableCell>{formatCurrency(newTotalCost)}</TableCell></TableRow>
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                    
-                    <Card>
-                        <CardHeader>
-                             <CardTitle className="font-headline text-xl">{projectionYears}-Year MF Projection</CardTitle>
-                        </Header>
-                        <CardContent className="text-center">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label>Current Path</Label>
-                                    <p className="text-3xl font-bold text-destructive">{formatCurrency(currentTotalMf)}</p>
-                                    <p className="text-xs text-muted-foreground">Based on {currentMfInflation}% annual inflation</p>
-                                </div>
-                                 <div>
-                                    <Label>Upgrade Path</Label>
-                                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(newTotalMf)}</p>
-                                     <p className="text-xs text-muted-foreground">Based on {upgradeProposal.newMfInflationRate}% annual inflation</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
                  </div>
             </div>
         </div>
