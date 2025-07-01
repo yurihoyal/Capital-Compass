@@ -125,16 +125,19 @@ function appReducer(state: AppState, action: Action): AppState {
         
         const calculatedSavings = (creditCardRewards.estimatedAnnualSpend * creditCardRewards.rewardRate) / 100;
         
-        const basePoints = ownerProfile.ownershipType === 'Deeded Only'
-            ? (ownerProfile.deedPointValue || 0)
-            : (ownerProfile.currentPoints || 0);
+        let currentOwnerPoints = 0;
+        let pointsFromConversions = 0;
 
-        const additionalConvertedPoints = ownerProfile.ownershipType === 'Capital Club Member'
-            ? (upgradeProposal.convertedDeedsToPoints || 0)
-            : 0;
-            
-        const totalPointsAfterUpgrade = basePoints + (upgradeProposal.newPointsAdded || 0) + additionalConvertedPoints;
-        
+        if (ownerProfile.ownershipType === 'Deeded Only') {
+            currentOwnerPoints = 0; // Deeded owners start with 0 club points.
+            pointsFromConversions = ownerProfile.deedPointValue || 0;
+        } else { // Capital Club Member
+            currentOwnerPoints = ownerProfile.currentPoints || 0;
+            pointsFromConversions = upgradeProposal.convertedDeedsToPoints || 0; // Points from converting an *additional* deed.
+        }
+
+        const totalPointsAfterUpgrade = currentOwnerPoints + pointsFromConversions + (upgradeProposal.newPointsAdded || 0);
+
         const currentMfInflation = ownerProfile.mfInflationRate;
         const newMfInflation = CLUB_INFLATION;
         
