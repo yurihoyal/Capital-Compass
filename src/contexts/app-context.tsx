@@ -150,7 +150,7 @@ function appReducer(state: AppState, action: Action): AppState {
         
         const costProjectionData = generateCostProjection(
             projectionYears,
-            ownerProfile.maintenanceFee, currentMfInflation, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanRate, ownerProfile.currentLoanTerm,
+            ownerProfile.maintenanceFee, currentMfInflation, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm,
             upgradeProposal.projectedMF, newMfInflation, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
             totalAnnualOffset
         );
