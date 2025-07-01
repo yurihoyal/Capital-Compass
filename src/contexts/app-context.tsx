@@ -124,12 +124,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const calculatedTravelServices: TravelServicesCalculatorData = { ...travelServicesCalculator, cashValueOfPoints };
     
     // --- Points and Projections ---
-    const startingPoints = ownerProfile.ownershipType === 'Deeded Only'
-        ? (ownerProfile.deedPointValue || 0)
-        : (ownerProfile.currentPoints || 0);
+    const isClubMember = ownerProfile.ownershipType === 'Capital Club Member';
+
+    // For existing Club members, their current points are their base. Deeded owners aren't in the club yet.
+    const currentPoints = isClubMember ? (ownerProfile.currentPoints || 0) : 0;
     
-    const newPointsFromDeeds = ownerProfile.ownershipType === 'Capital Club Member' ? (upgradeProposal.convertedDeedsToPoints || 0) : 0;
-    const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0) + newPointsFromDeeds;
+    // Calculate total points after the upgrade proposal.
+    let totalPointsAfterUpgrade;
+    if (isClubMember) {
+        // For Club Members, the new total is their current points plus newly added points.
+        // This addresses a bug where the calculation was incorrect for this owner type.
+        totalPointsAfterUpgrade = currentPoints + (upgradeProposal.newPointsAdded || 0);
+    } else {
+        // For Deeded Owners, the new total is their deed's value (converted to points) plus newly added points.
+        totalPointsAfterUpgrade = (ownerProfile.deedPointValue || 0) + (upgradeProposal.newPointsAdded || 0);
+    }
     
     const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
     let totalAnnualOffset = pointOffsetCredit + (calculatedRewards.annualCredit || 0);
@@ -148,7 +157,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0
     );
 
-    const currentVIPLevel = ownerProfile.ownershipType === 'Deeded Only' ? 'Deeded' : getVipTierFromPoints(startingPoints);
+    const currentVIPLevel = isClubMember ? getVipTierFromPoints(currentPoints) : 'Deeded';
     const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
 
     return {
