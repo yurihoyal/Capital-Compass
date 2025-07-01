@@ -43,12 +43,9 @@ const AdvantageCalculator = () => {
                     <CardDescription>Adjust the projection timeline and strategy to see the full financial picture.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                    <div className="flex flex-col gap-1">
-                        <div className="flex items-center space-x-2">
-                            <Label htmlFor="point-offset" className="text-base">Enable Point Offset Strategy</Label>
-                            <Switch id="point-offset" checked={usePointOffset} onCheckedChange={handleOffsetToggle} />
-                        </div>
-                        <p className="text-xs text-muted-foreground">Offsets are generated from unused points rental (50% max) and credit card rewards.</p>
+                    <div className="flex items-center space-x-2">
+                        <Label htmlFor="point-offset" className="text-base">Enable Point Offset Strategy</Label>
+                        <Switch id="point-offset" checked={usePointOffset} onCheckedChange={handleOffsetToggle} />
                     </div>
                      <Tabs defaultValue={String(projectionYears)} onValueChange={handleProjectionYearChange} className="w-[270px]">
                         <TabsList className="grid w-full grid-cols-3">
