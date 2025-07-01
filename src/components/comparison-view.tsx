@@ -33,16 +33,14 @@ const ComparisonView = () => {
         <VipBenefitsDisplay title="New Proposal Benefits" tier={projectedVIPLevel} />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-            <FinancialTrendGraph />
-        </div>
-        <div className="space-y-8">
-            <CreditCardModule />
-            <TravelServicesValueCalculator />
-        </div>
-      </div>
+      <FinancialTrendGraph />
+      
       <VipValueCalculator />
+
+      <div className="grid lg:grid-cols-2 gap-8">
+        <CreditCardModule />
+        <TravelServicesValueCalculator />
+      </div>
     </div>
   );
 };

@@ -48,7 +48,7 @@ const RewardsSavingsCalculator = () => {
     const formatNumber = (value: number) => (value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
 
     return (
-        <Card className="h-full flex flex-col">
+        <Card className="flex flex-col">
             <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center justify-between">
                     Rewards Savings Calculator
