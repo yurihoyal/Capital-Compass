@@ -12,9 +12,8 @@ export const OwnerProfileSchema = z.object({
   currentPoints: z.coerce.number().min(0),
   maintenanceFee: z.coerce.number().min(0),
   specialAssessment: z.coerce.number().min(0),
-  currentLoanBalance: z.coerce.number().min(0),
-  currentLoanInterestRate: z.coerce.number().min(0).max(100),
-  currentLoanTerm: z.coerce.number().min(0),
+  currentMonthlyLoanPayment: z.coerce.number().min(0).optional(),
+  currentLoanTerm: z.coerce.number().min(0).optional(),
   mfInflationRate: z.coerce.number().min(1).max(30),
 });
 export type OwnerProfile = z.infer<typeof OwnerProfileSchema>;

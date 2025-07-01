@@ -24,8 +24,7 @@ export function generateCostProjection(
     currentMf: number,
     currentMfInflation: number,
     currentSpecialAssessment: number,
-    currentLoanBalance: number,
-    currentLoanRate: number,
+    currentMonthlyLoanPayment: number,
     currentLoanTermRemainingMonths: number,
     newMf: number,
     newMfInflation: number,
@@ -38,7 +37,6 @@ export function generateCostProjection(
     let cumulativeCurrentMf = 0;
     let cumulativeNewMf = 0;
     
-    const currentMonthlyLoanPayment = calculateMonthlyPayment(currentLoanBalance, currentLoanRate, currentLoanTermRemainingMonths);
     const newMonthlyLoanPayment = calculateMonthlyPayment(newLoanAmount, newLoanRate, newLoanTermMonths);
 
     for (let i = 1; i <= years; i++) {
@@ -69,37 +67,33 @@ export function generateCurrentPathProjection(
     mf: number,
     mfInflation: number,
     specialAssessment: number,
-    loanBalance: number,
-    loanRate: number,
+    monthlyLoanPayment: number,
     loanTermRemainingMonths: number
 ) {
     const projection = [];
     let cumulativeMf = 0;
-    
-    const monthlyLoanPayment = calculateMonthlyPayment(loanBalance, loanRate, loanTermRemainingMonths);
-    
+    let cumulativeLoanPaid = 0;
+
     for (let i = 1; i <= years; i++) {
         const inflatedMfForYear = mf * Math.pow(1 + mfInflation / 100, i - 1);
+        const loanPaidForYear = monthlyLoanPayment * (Math.min(i * 12, loanTermRemainingMonths) - Math.min((i - 1) * 12, loanTermRemainingMonths));
+        
         cumulativeMf += inflatedMfForYear;
-        
-        const totalLoanPaid = monthlyLoanPayment * Math.min(i * 12, loanTermRemainingMonths);
-        
+        cumulativeLoanPaid += loanPaidForYear;
+
         projection.push({
             year: i,
-            cumulativeCost: Math.round(cumulativeMf + totalLoanPaid + specialAssessment),
+            'Maintenance Fees': Math.round(inflatedMfForYear),
+            'Loan Payments': Math.round(loanPaidForYear),
+            cumulativeCost: Math.round(cumulativeMf + cumulativeLoanPaid + specialAssessment)
         });
     }
 
-    const totalLoanPaid = monthlyLoanPayment * loanTermRemainingMonths;
-    const totalInterest = Math.max(0, totalLoanPaid - loanBalance);
-
     const summary = {
-        totalCost: (projection.find(p => p.year === years)?.cumulativeCost || 0),
-        totalInterest: totalInterest,
-        totalMf: cumulativeMf
-    }
+        totalCost: projection.length > 0 ? projection[projection.length - 1].cumulativeCost : specialAssessment,
+        totalMf: cumulativeMf,
+        totalLoanPaid: cumulativeLoanPaid,
+    };
 
     return { projection, summary };
 }
-
-    

@@ -100,7 +100,6 @@ const OwnerProfileForm = () => {
   }, [ownerProfileString, reset]);
 
   const handleFormChange = () => {
-      // Debounce or onBlur logic can be added here if needed
       dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: getValues() });
   };
   
@@ -265,25 +264,12 @@ const OwnerProfileForm = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={control}
-                                    name="currentLoanBalance"
+                                    name="currentMonthlyLoanPayment"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Loan Balance ($)</FormLabel>
+                                        <FormLabel>Monthly Loan Payment ($)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="10000" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={control}
-                                    name="currentLoanInterestRate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                        <FormLabel>Interest Rate (%)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" step="0.1" placeholder="8.5" {...field} />
+                                            <Input type="number" placeholder="250" {...field} value={field.value ?? ''} />
                                         </FormControl>
                                         <FormMessage />
                                         </FormItem>
@@ -294,9 +280,9 @@ const OwnerProfileForm = () => {
                                     name="currentLoanTerm"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Term (Months)</FormLabel>
+                                        <FormLabel>Remaining Term (Months)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="60" {...field} />
+                                            <Input type="number" placeholder="60" {...field} value={field.value ?? ''} />
                                         </FormControl>
                                         <FormMessage />
                                         </FormItem>

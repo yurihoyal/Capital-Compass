@@ -28,7 +28,7 @@ const ComparisonTable = () => {
     const { state } = useAppContext();
     const { ownerProfile, upgradeProposal, rewardsCalculator, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
-    const currentMonthlyLoan = calculateMonthlyPayment(ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm);
+    const currentMonthlyLoan = ownerProfile.currentMonthlyLoanPayment || 0;
     const newMonthlyLoan = calculateMonthlyPayment(upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm);
 
     const currentMonthlyMf = ownerProfile.maintenanceFee / 12;

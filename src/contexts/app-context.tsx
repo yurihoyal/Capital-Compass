@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { OwnerProfile, UpgradeProposal, RewardsCalculatorData, TravelServicesCalculatorData } from '@/types';
-import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
+import { generateCostProjection, generateCurrentPathProjection, calculateMonthlyPayment } from '@/lib/financial';
 
 const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
@@ -25,8 +25,8 @@ interface AppState {
 // This interface includes the calculated values
 interface FullAppState extends AppState {
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
-  currentPathProjection: { year: number, cumulativeCost: number }[];
-  currentPathSummary: { totalCost: number; totalInterest: number; totalMf: number; };
+  currentPathProjection: { year: number; "Maintenance Fees": number; "Loan Payments": number; cumulativeCost: number; }[];
+  currentPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
   projectedVIPLevel: string;
@@ -41,8 +41,7 @@ const initialCoreState: AppState = {
     currentPoints: 0,
     maintenanceFee: 2000,
     specialAssessment: 0,
-    currentLoanBalance: 10000,
-    currentLoanInterestRate: 8.5,
+    currentMonthlyLoanPayment: 250,
     currentLoanTerm: 60,
     mfInflationRate: 8,
   },
@@ -144,14 +143,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     
     const costProjectionData = generateCostProjection(
         projectionYears,
-        ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm,
+        ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
+        ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0,
         upgradeProposal.projectedMF, upgradeProposal.newMfInflationRate, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
         totalAnnualOffset
     );
 
     const currentPathData = generateCurrentPathProjection(
         projectionYears,
-        ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm
+        ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
+        ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0
     );
 
     const currentVIPLevel = ownerProfile.ownershipType === 'Deeded Only' ? 'Deeded' : getVipTierFromPoints(startingPoints);
