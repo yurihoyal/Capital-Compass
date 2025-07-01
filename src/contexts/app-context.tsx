@@ -124,7 +124,16 @@ function appReducer(state: AppState, action: Action): AppState {
         const { ownerProfile, upgradeProposal, creditCardRewards, projectionYears, usePointOffset } = state;
         
         const calculatedSavings = (creditCardRewards.estimatedAnnualSpend * creditCardRewards.rewardRate) / 100;
-        const totalPointsAfterUpgrade = (ownerProfile.currentPoints || 0) + (upgradeProposal.newPointsAdded || 0) + (upgradeProposal.convertedDeedsToPoints || 0);
+        
+        const basePoints = ownerProfile.ownershipType === 'Deeded Only'
+            ? (ownerProfile.deedPointValue || 0)
+            : (ownerProfile.currentPoints || 0);
+
+        const additionalConvertedPoints = ownerProfile.ownershipType === 'Capital Club Member'
+            ? (upgradeProposal.convertedDeedsToPoints || 0)
+            : 0;
+            
+        const totalPointsAfterUpgrade = basePoints + (upgradeProposal.newPointsAdded || 0) + additionalConvertedPoints;
         
         const currentMfInflation = ownerProfile.mfInflationRate;
         const newMfInflation = CLUB_INFLATION;
@@ -143,7 +152,7 @@ function appReducer(state: AppState, action: Action): AppState {
             ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm
         );
 
-        const currentVIPLevel = getVipTierFromPoints(ownerProfile.currentPoints);
+        const currentVIPLevel = getVipTierFromPoints(ownerProfile.ownershipType === 'Deeded Only' ? (ownerProfile.deedPointValue || 0) : (ownerProfile.currentPoints || 0));
         const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
 
         return {

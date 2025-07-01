@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 const UpgradeProposalForm = () => {
   const { state, dispatch } = useAppContext();
+  const isClubMember = state.ownerProfile.ownershipType === 'Capital Club Member';
 
   const form = useForm<UpgradeProposal>({
     resolver: zodResolver(UpgradeProposalSchema),
@@ -57,19 +58,21 @@ const UpgradeProposalForm = () => {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="convertedDeedsToPoints"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Points from Converted Deeds</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder="0" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    {isClubMember && (
+                      <FormField
+                          control={form.control}
+                          name="convertedDeedsToPoints"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Points from Converted Deeds</FormLabel>
+                              <FormControl>
+                                  <Input type="number" placeholder="0" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                    )}
                     <FormField
                         control={form.control}
                         name="projectedMF"
