@@ -52,10 +52,22 @@ export function generateCostProjection(
         const totalCurrentCost = cumulativeCurrentMf + totalCurrentLoanPaid + currentSpecialAssessment;
         const totalNewCost = (cumulativeNewMf + totalNewLoanPaid) - (annualNewCostOffset * i);
         
+        // Calculate monthly costs for the tooltip
+        const currentMonthlyMf = inflatedCurrentMf / 12;
+        const currentMonthlyLoan = ((i - 1) * 12 < currentLoanTermRemainingMonths) ? currentMonthlyLoanPayment : 0;
+        const totalCurrentMonthly = currentMonthlyMf + currentMonthlyLoan;
+
+        const newMonthlyMf = inflatedNewMf / 12;
+        const newMonthlyLoan = ((i - 1) * 12 < newLoanTermMonths) ? newMonthlyLoanPayment : 0;
+        const monthlyOffset = annualNewCostOffset / 12;
+        const totalNewMonthly = newMonthlyMf + newMonthlyLoan - monthlyOffset;
+        
         data.push({
             year: i,
             currentCost: Math.round(totalCurrentCost),
             newCost: Math.round(Math.max(0, totalNewCost)),
+            currentMonthlyCost: totalCurrentMonthly,
+            newMonthlyCost: Math.max(0, totalNewMonthly),
         });
     }
 
