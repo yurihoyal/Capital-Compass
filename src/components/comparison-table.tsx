@@ -2,7 +2,7 @@
 import { useAppContext } from '@/contexts/app-context';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from './ui/badge';
-import { ArrowDown, ArrowUp, CheckCircle, Minus, XCircle } from 'lucide-react';
+import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
 import { ComparisonItem } from '@/types';
 import { calculateFutureValue } from '@/lib/financial';
 import { cn, getTierBadgeClass } from '@/lib/utils';
@@ -14,17 +14,17 @@ const ComparisonTable = () => {
     const { state } = useAppContext();
     const { ownerProfile, upgradeProposal, rewardsCalculator, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
 
-    const currentMonthlyLoan = ownerProfile.currentMonthlyLoanPayment || 0;
-    const newMonthlyLoan = upgradeProposal.newMonthlyLoanPayment || 0;
+    const currentMonthlyLoan = Number(ownerProfile.currentMonthlyLoanPayment) || 0;
+    const newMonthlyLoan = Number(upgradeProposal.newMonthlyLoanPayment) || 0;
 
-    const currentMonthlyMf = ownerProfile.maintenanceFee || 0;
-    const newMonthlyMf = upgradeProposal.projectedMF || 0;
+    const currentMonthlyMf = Number(ownerProfile.maintenanceFee) || 0;
+    const newMonthlyMf = Number(upgradeProposal.projectedMF) || 0;
 
     const currentMonthlyTotal = currentMonthlyLoan + currentMonthlyMf;
     const newMonthlyTotal = newMonthlyLoan + newMonthlyMf - (rewardsCalculator.monthlyCredit || 0);
 
-    const mfCost10YearsCurrent = calculateFutureValue((ownerProfile.maintenanceFee || 0) * 12, ownerProfile.ownershipType === 'Deeded Only' ? DEEDED_INFLATION : CLUB_INFLATION, 10) * 10;
-    const mfCost10YearsNew = calculateFutureValue((upgradeProposal.projectedMF || 0) * 12, CLUB_INFLATION, 10) * 10;
+    const mfCost10YearsCurrent = calculateFutureValue(Number(ownerProfile.maintenanceFee || 0) * 12, ownerProfile.ownershipType === 'Deeded Only' ? DEEDED_INFLATION : CLUB_INFLATION, 10) * 10;
+    const mfCost10YearsNew = calculateFutureValue(Number(upgradeProposal.projectedMF || 0) * 12, CLUB_INFLATION, 10) * 10;
     
     const getSentiment = (now: number, aNew: number, lowerIsBetter = true) => {
         if(aNew < now) return lowerIsBetter ? 'positive' : 'negative';
@@ -42,7 +42,7 @@ const ComparisonTable = () => {
             feature: 'Points',
             now: ownerProfile.ownershipType === 'Deeded Only' ? (ownerProfile.deedPointValue || 0).toLocaleString() : ownerProfile.currentPoints.toLocaleString(),
             new: (totalPointsAfterUpgrade || 0).toLocaleString(),
-            sentiment: getSentiment(ownerProfile.currentPoints, totalPointsAfterUpgrade || 0, false)
+            sentiment: getSentiment(Number(ownerProfile.currentPoints), totalPointsAfterUpgrade || 0, false)
         },
         {
             feature: 'Ownership Type',
