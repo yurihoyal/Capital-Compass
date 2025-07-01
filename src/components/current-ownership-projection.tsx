@@ -23,8 +23,8 @@ const chartConfig = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    const monthlyMf = data.monthlyMf || 0;
-    const monthlyLoan = data.monthlyLoan || 0;
+    const monthlyMf = Number(data.monthlyMf || 0);
+    const monthlyLoan = Number(data.monthlyLoan || 0);
     const totalMonthly = monthlyMf + monthlyLoan;
 
     return (
