@@ -94,10 +94,13 @@ const OwnerProfileForm = () => {
   const { watch, control, setValue, reset, getValues } = form;
   const ownershipType = watch('ownershipType');
 
-  const ownerProfileString = JSON.stringify(state.ownerProfile);
   useEffect(() => {
-    reset(state.ownerProfile);
-  }, [ownerProfileString, reset]);
+    const ownerProfileString = JSON.stringify(state.ownerProfile);
+    if (ownerProfileString !== JSON.stringify(getValues())) {
+      reset(state.ownerProfile);
+    }
+  }, [state.ownerProfile, reset, getValues]);
+
 
   const handleFormChange = () => {
       dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: getValues() });
@@ -219,9 +222,9 @@ const OwnerProfileForm = () => {
                                 name="maintenanceFee"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Annual Maintenance Fee ($)</FormLabel>
+                                    <FormLabel>Monthly Maintenance Fee ($)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" placeholder="2000" {...field} />
+                                        <Input type="number" placeholder="167" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>

@@ -24,20 +24,24 @@ const RewardsSavingsCalculator = () => {
     
     const { reset, getValues } = form;
 
-    const rewardsCalculatorString = JSON.stringify(rewardsCalculator);
     useEffect(() => {
-        reset(rewardsCalculator);
-    }, [rewardsCalculatorString, reset]);
+        const rewardsCalculatorString = JSON.stringify(rewardsCalculator);
+        if (rewardsCalculatorString !== JSON.stringify(getValues())) {
+            reset(rewardsCalculator);
+        }
+    }, [rewardsCalculator, reset, getValues]);
+
 
     const handleFormChange = () => {
         dispatch({ type: 'UPDATE_REWARDS_CALCULATOR', payload: getValues() });
     };
 
+    const annualMaintenanceFee = (ownerProfile.maintenanceFee || 0) * 12;
     const mfChartData = [
         { 
             name: 'Maintenance Fee', 
-            'Out-of-Pocket': ownerProfile.maintenanceFee, 
-            'After Rewards': Math.max(0, ownerProfile.maintenanceFee - rewardsCalculator.annualCredit) 
+            'Out-of-Pocket': annualMaintenanceFee, 
+            'After Rewards': Math.max(0, annualMaintenanceFee - (rewardsCalculator.annualCredit || 0)) 
         }
     ];
 
@@ -98,7 +102,7 @@ const RewardsSavingsCalculator = () => {
                 </div>
                 
                 <div className="h-[150px] w-full mt-4">
-                     <p className="text-sm font-medium text-center mb-2">MF Cost Reduction</p>
+                     <p className="text-sm font-medium text-center mb-2">Annual MF Cost Reduction</p>
                      <ChartContainer config={{}} className="w-full h-full">
                         <BarChart data={mfChartData} layout="vertical" margin={{ left: 30, right: 30 }}>
                             <XAxis type="number" hide />

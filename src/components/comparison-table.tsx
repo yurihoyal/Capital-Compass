@@ -31,14 +31,14 @@ const ComparisonTable = () => {
     const currentMonthlyLoan = ownerProfile.currentMonthlyLoanPayment || 0;
     const newMonthlyLoan = calculateMonthlyPayment(upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm);
 
-    const currentMonthlyMf = ownerProfile.maintenanceFee / 12;
-    const newMonthlyMf = upgradeProposal.projectedMF / 12;
+    const currentMonthlyMf = ownerProfile.maintenanceFee || 0;
+    const newMonthlyMf = upgradeProposal.projectedMF || 0;
 
     const currentMonthlyTotal = currentMonthlyLoan + currentMonthlyMf;
     const newMonthlyTotal = newMonthlyLoan + newMonthlyMf - (rewardsCalculator.monthlyCredit || 0);
 
-    const mfCost10YearsCurrent = calculateFutureValue(ownerProfile.maintenanceFee, ownerProfile.ownershipType === 'Deeded Only' ? DEEDED_INFLATION : CLUB_INFLATION, 10) * 10;
-    const mfCost10YearsNew = calculateFutureValue(upgradeProposal.projectedMF, CLUB_INFLATION, 10) * 10;
+    const mfCost10YearsCurrent = calculateFutureValue((ownerProfile.maintenanceFee || 0) * 12, ownerProfile.ownershipType === 'Deeded Only' ? DEEDED_INFLATION : CLUB_INFLATION, 10) * 10;
+    const mfCost10YearsNew = calculateFutureValue((upgradeProposal.projectedMF || 0) * 12, CLUB_INFLATION, 10) * 10;
     
     const getSentiment = (now: number, aNew: number, lowerIsBetter = true) => {
         if(aNew < now) return lowerIsBetter ? 'positive' : 'negative';

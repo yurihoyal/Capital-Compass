@@ -39,7 +39,7 @@ const initialCoreState: AppState = {
     ownershipType: 'Deeded Only',
     deedPointValue: 150000,
     currentPoints: 0,
-    maintenanceFee: 2000,
+    maintenanceFee: 167,
     specialAssessment: 0,
     currentMonthlyLoanPayment: 250,
     currentLoanTerm: 60,
@@ -51,7 +51,7 @@ const initialCoreState: AppState = {
     newLoanAmount: 25000,
     newLoanTerm: 120,
     newLoanInterestRate: 7.5,
-    projectedMF: 2500,
+    projectedMF: 208,
     newMfInflationRate: 3,
   },
   rewardsCalculator: {
@@ -143,15 +143,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     
     const costProjectionData = generateCostProjection(
         projectionYears,
-        ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
+        (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
         ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0,
-        upgradeProposal.projectedMF, upgradeProposal.newMfInflationRate, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
+        (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
         totalAnnualOffset
     );
 
     const currentPathData = generateCurrentPathProjection(
         projectionYears,
-        ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
+        (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
         ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0
     );
 

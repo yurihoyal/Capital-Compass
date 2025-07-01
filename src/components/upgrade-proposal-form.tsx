@@ -22,10 +22,12 @@ const UpgradeProposalForm = () => {
 
   const { reset, getValues, control } = form;
 
-  const upgradeProposalString = JSON.stringify(state.upgradeProposal);
   useEffect(() => {
-    reset(state.upgradeProposal);
-  }, [upgradeProposalString, reset]);
+    const upgradeProposalString = JSON.stringify(state.upgradeProposal);
+    if (upgradeProposalString !== JSON.stringify(getValues())) {
+      reset(state.upgradeProposal);
+    }
+  }, [state.upgradeProposal, reset, getValues]);
 
   const handleFormChange = () => {
     dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: getValues() });
@@ -75,9 +77,9 @@ const UpgradeProposalForm = () => {
                         name="projectedMF"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Projected Annual Maintenance Fee ($)</FormLabel>
+                            <FormLabel>Projected Monthly Maintenance Fee ($)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="2500" {...field} />
+                                <Input type="number" placeholder="208" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
