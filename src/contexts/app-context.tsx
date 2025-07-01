@@ -124,7 +124,7 @@ function appReducer(state: AppState, action: Action): AppState {
         
         // --- Rewards Calculation ---
         const { monthlySpend } = rewardsCalculator;
-        const totalRewards = (monthlySpend || 0) * 12 * 4;
+        const totalRewards = (monthlySpend || 0) * 12 * 3;
         const annualCredit = totalRewards * 0.05;
         const monthlyCredit = annualCredit / 12;
 
@@ -140,7 +140,7 @@ function appReducer(state: AppState, action: Action): AppState {
             ? (ownerProfile.deedPointValue || 0) 
             : (ownerProfile.currentPoints || 0);
 
-        const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0);
+        const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0) + (upgradeProposal.convertedDeedsToPoints || 0);
 
         const currentMfInflation = ownerProfile.mfInflationRate;
         const newMfInflation = CLUB_INFLATION;
@@ -150,7 +150,7 @@ function appReducer(state: AppState, action: Action): AppState {
         
         const costProjectionData = generateCostProjection(
             projectionYears,
-            ownerProfile.maintenanceFee, currentMfInflation, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm,
+            ownerProfile.maintenanceFee, currentMfInflation, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanRate, ownerProfile.currentLoanTerm,
             upgradeProposal.projectedMF, newMfInflation, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
             totalAnnualOffset
         );

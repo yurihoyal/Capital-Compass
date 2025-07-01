@@ -83,7 +83,7 @@ const RewardsSavingsCalculator = () => {
                         <Card className="bg-muted/50 p-3">
                             <p className="text-sm font-medium text-muted-foreground">Total Annual Rewards</p>
                             <p className="text-2xl font-bold">{formatNumber(rewardsCalculator.totalRewards)}</p>
-                            <p className="text-xs text-muted-foreground">Based on an average of 4 points per dollar spent</p>
+                            <p className="text-xs text-muted-foreground">Based on an average of 3 points per dollar spent</p>
                         </Card>
                     </div>
 
