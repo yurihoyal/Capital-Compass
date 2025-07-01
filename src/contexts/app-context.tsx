@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { OwnerProfile, UpgradeProposal, RewardsCalculatorData } from '@/types';
+import { OwnerProfile, UpgradeProposal, RewardsCalculatorData, TravelServicesCalculatorData } from '@/types';
 import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
 
 const DEEDED_INFLATION = 8;
@@ -19,6 +19,7 @@ interface AppState {
   ownerProfile: OwnerProfile;
   upgradeProposal: UpgradeProposal;
   rewardsCalculator: RewardsCalculatorData;
+  travelServicesCalculator: TravelServicesCalculatorData;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
   currentPathProjection: { year: number, cumulativeCost: number }[];
   currentPathSummary: { totalCost: number; totalInterest: number; totalMf: number; };
@@ -60,6 +61,14 @@ const initialRewardsCalculator: RewardsCalculatorData = {
     monthlyCredit: 0,
 };
 
+const initialTravelServicesCalculator: TravelServicesCalculatorData = {
+    pointsForTravel: 0,
+    outOfPocketSpend: 0,
+    applyToProjection: false,
+    cashValueOfPoints: 0,
+    estimatedSavings: 0,
+};
+
 // Calculate derived initial values
 const initialStartingPoints = initialOwnerProfile.ownershipType === 'Deeded Only'
     ? (initialOwnerProfile.deedPointValue || 0)
@@ -88,6 +97,7 @@ const initialState: AppState = {
   ownerProfile: initialOwnerProfile,
   upgradeProposal: initialUpgradeProposal,
   rewardsCalculator: initialRewardsCalculator,
+  travelServicesCalculator: initialTravelServicesCalculator,
   costProjectionData: initialCostProjectionData,
   currentPathProjection: initialCurrentPathData.projection,
   currentPathSummary: initialCurrentPathData.summary,
@@ -102,6 +112,7 @@ type Action =
   | { type: 'UPDATE_OWNER_PROFILE'; payload: Partial<OwnerProfile> }
   | { type: 'UPDATE_UPGRADE_PROPOSAL'; payload: Partial<UpgradeProposal> }
   | { type: 'UPDATE_REWARDS_CALCULATOR'; payload: Partial<RewardsCalculatorData> }
+  | { type: 'UPDATE_TRAVEL_SERVICES_CALCULATOR'; payload: Partial<TravelServicesCalculatorData> }
   | { type: 'RESET_STATE' }
   | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 15 | 20 }
   | { type: 'SET_USE_POINT_OFFSET', payload: boolean }
@@ -118,6 +129,8 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, upgradeProposal: { ...state.upgradeProposal, ...action.payload } };
     case 'UPDATE_REWARDS_CALCULATOR':
         return { ...state, rewardsCalculator: { ...state.rewardsCalculator, ...action.payload } };
+    case 'UPDATE_TRAVEL_SERVICES_CALCULATOR':
+        return { ...state, travelServicesCalculator: { ...state.travelServicesCalculator, ...action.payload } };
     case 'RESET_STATE':
         return { ...initialState };
     case 'SET_PROJECTION_YEARS':
@@ -125,40 +138,41 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'SET_USE_POINT_OFFSET':
         return { ...state, usePointOffset: action.payload };
     case 'CALCULATE_ALL': {
-        const { ownerProfile, upgradeProposal, rewardsCalculator, projectionYears, usePointOffset } = state;
+        const { ownerProfile, upgradeProposal, rewardsCalculator, travelServicesCalculator, projectionYears, usePointOffset } = state;
         
         // --- Rewards Calculation ---
         const { monthlySpend } = rewardsCalculator;
         const totalRewards = (monthlySpend || 0) * 12 * 3;
         const annualCredit = totalRewards * 0.05;
         const monthlyCredit = annualCredit / 12;
-
-        const calculatedRewards: RewardsCalculatorData = {
-            ...rewardsCalculator,
-            totalRewards,
-            annualCredit,
-            monthlyCredit
-        };
+        const calculatedRewards: RewardsCalculatorData = { ...rewardsCalculator, totalRewards, annualCredit, monthlyCredit };
         // --- End Rewards Calculation ---
+
+        // --- Travel Services Calculation ---
+        const { pointsForTravel, outOfPocketSpend, applyToProjection } = travelServicesCalculator;
+        const cashValueOfPoints = (pointsForTravel || 0) * 0.02;
+        const estimatedSavings = Math.max(0, (outOfPocketSpend || 0) - cashValueOfPoints);
+        const calculatedTravelServices: TravelServicesCalculatorData = { ...travelServicesCalculator, cashValueOfPoints, estimatedSavings };
+        // --- End Travel Services Calculation ---
 
         const startingPoints = ownerProfile.ownershipType === 'Deeded Only'
             ? (ownerProfile.deedPointValue || 0)
             : (ownerProfile.currentPoints || 0);
-
+        
         const newPointsFromDeeds = ownerProfile.ownershipType === 'Capital Club Member' ? (upgradeProposal.convertedDeedsToPoints || 0) : 0;
-
         const totalPointsAfterUpgrade = startingPoints + (upgradeProposal.newPointsAdded || 0) + newPointsFromDeeds;
-
-        const currentMfInflation = ownerProfile.mfInflationRate;
-        const newMfInflation = upgradeProposal.newMfInflationRate;
         
         const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
-        const totalAnnualOffset = pointOffsetCredit + annualCredit;
+        let totalAnnualOffset = pointOffsetCredit + annualCredit;
+
+        if (applyToProjection) {
+            totalAnnualOffset += estimatedSavings;
+        }
         
         const costProjectionData = generateCostProjection(
             projectionYears,
-            ownerProfile.maintenanceFee, currentMfInflation, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm,
-            upgradeProposal.projectedMF, newMfInflation, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
+            ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm,
+            upgradeProposal.projectedMF, upgradeProposal.newMfInflationRate, upgradeProposal.newLoanAmount, upgradeProposal.newLoanInterestRate, upgradeProposal.newLoanTerm,
             totalAnnualOffset
         );
 
@@ -167,13 +181,14 @@ function appReducer(state: AppState, action: Action): AppState {
             ownerProfile.maintenanceFee, ownerProfile.mfInflationRate, ownerProfile.specialAssessment, ownerProfile.currentLoanBalance, ownerProfile.currentLoanInterestRate, ownerProfile.currentLoanTerm
         );
 
-        const currentVIPLevel = getVipTierFromPoints(startingPoints);
+        const currentVIPLevel = ownerProfile.ownershipType === 'Deeded Only' ? 'Deeded' : getVipTierFromPoints(startingPoints);
         const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
 
         return {
             ...state,
             totalPointsAfterUpgrade,
             rewardsCalculator: calculatedRewards,
+            travelServicesCalculator: calculatedTravelServices,
             costProjectionData,
             currentPathProjection: currentPathData.projection,
             currentPathSummary: currentPathData.summary,
@@ -193,6 +208,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     ownerProfile,
     upgradeProposal,
     rewardsCalculator,
+    travelServicesCalculator,
     projectionYears,
     usePointOffset
   } = state;
@@ -202,7 +218,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [
     ownerProfile,
     upgradeProposal,
-    rewardsCalculator.monthlySpend,
+    rewardsCalculator,
+    travelServicesCalculator,
     projectionYears,
     usePointOffset,
     dispatch

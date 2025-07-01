@@ -39,6 +39,16 @@ export const RewardsCalculatorSchema = z.object({
 });
 export type RewardsCalculatorData = z.infer<typeof RewardsCalculatorSchema>;
 
+export const TravelServicesCalculatorSchema = z.object({
+  pointsForTravel: z.coerce.number().min(0).optional().default(0),
+  outOfPocketSpend: z.coerce.number().min(0).optional().default(0),
+  applyToProjection: z.boolean().optional().default(false),
+  // Calculated fields
+  cashValueOfPoints: z.coerce.number().min(0).optional(),
+  estimatedSavings: z.coerce.number().min(0).optional(),
+});
+export type TravelServicesCalculatorData = z.infer<typeof TravelServicesCalculatorSchema>;
+
 
 export interface ComparisonItem {
     feature: string;
