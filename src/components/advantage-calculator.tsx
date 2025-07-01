@@ -92,7 +92,7 @@ const AdvantageCalculator = () => {
                      <Tabs defaultValue={String(projectionYears)} onValueChange={handleProjectionYearChange} className="w-[270px]">
                         <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="10">10 Years</TabsTrigger>
-                            <TabsTrigger value="15">15 Years</T    absTrigger>
+                            <TabsTrigger value="15">15 Years</TabsTrigger>
                             <TabsTrigger value="20">20 Years</TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -143,10 +143,10 @@ const AdvantageCalculator = () => {
                                 Current path leads to rising fees with no flexible exit strategy.
                             </AlertDescription>
                         </Alert>
-                         <Alert className="bg-success/10 border-success/30 text-success-foreground">
-                            <Sparkles className="h-4 w-4 text-success" />
-                            <AlertTitle className="text-success">Advantage</AlertTitle>
-                            <AlertDescription className="text-success/90">
+                         <Alert className="border-green-600/30 bg-green-600/10 text-green-900 dark:text-green-200">
+                            <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            <AlertTitle className="text-green-800 dark:text-green-300">Advantage</AlertTitle>
+                            <AlertDescription>
                                 Upgrade plan uses your points smarter, reducing long-term costs.
                             </AlertDescription>
                         </Alert>
@@ -166,7 +166,7 @@ const AdvantageCalculator = () => {
                             </div>
                              <div>
                                 <Label>Upgrade Plan</Label>
-                                <p className="text-2xl font-bold text-success">Up to {estimatedVacationsNew.toFixed(1)} vacations</p>
+                                <p className="text-2xl font-bold text-green-600 dark:text-green-400">Up to {estimatedVacationsNew.toFixed(1)} vacations</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -209,7 +209,7 @@ const AdvantageCalculator = () => {
                                 </div>
                                  <div>
                                     <Label>Upgrade Path</Label>
-                                    <p className="text-3xl font-bold text-success">{formatCurrency(newTotalMf)}</p>
+                                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(newTotalMf)}</p>
                                      <p className="text-xs text-muted-foreground">Based on {upgradeProposal.newMfInflationRate}% annual inflation</p>
                                 </div>
                             </div>
