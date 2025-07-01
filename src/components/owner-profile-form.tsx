@@ -91,27 +91,30 @@ const OwnerProfileForm = () => {
     defaultValues: state.ownerProfile,
   });
 
-  const { watch, control, setValue, reset } = form;
+  const { watch, control, setValue, reset, getValues } = form;
   const ownershipType = watch('ownershipType');
-
-  // This useEffect syncs the entire form state to the global context on any change.
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (type === 'change') {
-        dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: value as OwnerProfile });
-        if (name === 'ownershipType') {
-          const newInflationRate = value.ownershipType === 'Deeded Only' ? 8 : 3;
-          setValue('mfInflationRate', newInflationRate, { shouldDirty: true });
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, dispatch, setValue]);
 
   useEffect(() => {
     reset(state.ownerProfile);
   }, [state.ownerProfile, reset]);
 
+  const handleFormChange = () => {
+      // Debounce or onBlur logic can be added here if needed
+      dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: getValues() });
+  };
+  
+  const handleOwnershipTypeChange = (value: typeof ownershipTypes[number]) => {
+      setValue('ownershipType', value);
+      const newInflationRate = value === 'Deeded Only' ? 8 : 3;
+      setValue('mfInflationRate', newInflationRate);
+
+      if (value === 'Deeded Only') {
+          setValue('currentPoints', 0);
+      } else if (value === 'Capital Club Member') {
+          setValue('deedPointValue', 0);
+      }
+      handleFormChange();
+  };
 
   return (
     <Card>
@@ -124,7 +127,7 @@ const OwnerProfileForm = () => {
             {/* Left Column: Inputs */}
             <div className="space-y-6">
                 <Form {...form}>
-                    <form>
+                    <form onChange={handleFormChange}>
                         <div className="space-y-4">
                              <FormField
                                 control={control}
@@ -159,10 +162,8 @@ const OwnerProfileForm = () => {
                                     <FormItem>
                                         <FormLabel>Ownership Type</FormLabel>
                                         <Select 
-                                            onValueChange={(value: typeof ownershipTypes[number]) => {
-                                                field.onChange(value);
-                                            }} 
-                                            defaultValue={field.value}>
+                                            onValueChange={handleOwnershipTypeChange} 
+                                            value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select ownership type" />
