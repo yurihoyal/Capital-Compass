@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import React from 'react';
@@ -7,25 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
-import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartContainer, type ChartConfig } from './ui/chart';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Flame, Sparkles } from 'lucide-react';
-
-const chartConfig = {
-  currentCost: {
-    label: "Current Path Cost",
-    color: "hsl(var(--destructive))",
-  },
-  newCost: {
-    label: "Upgrade Path Cost",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
+import CurrentOwnershipProjection from './current-ownership-projection';
+import NewOwnershipProjection from './new-ownership-projection';
 
 const AdvantageCalculator = () => {
     const { state, dispatch } = useAppContext();
-    const { costProjectionData, projectionYears, usePointOffset } = state;
+    const { projectionYears, usePointOffset } = state;
 
     const handleProjectionYearChange = (value: string) => {
         dispatch({ type: 'SET_PROJECTION_YEARS', payload: parseInt(value, 10) as 10 | 15 | 20 });
@@ -57,59 +43,9 @@ const AdvantageCalculator = () => {
                 </CardContent>
             </Card>
 
-            <div className="grid lg:grid-cols-5 gap-8">
-                 <div className="lg:col-span-5 space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-xl">{projectionYears}-Year Ownership Cost Comparison</CardTitle>
-                            <CardDescription>
-                                Cumulative cost of ownership, including MFs and loan payments. A growing gap means growing savings.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="h-[300px] w-full">
-                                <ChartContainer config={chartConfig} className="w-full h-full">
-                                    <AreaChart data={costProjectionData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
-                                        <defs>
-                                            <linearGradient id="colorNewAdv" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="var(--color-newCost)" stopOpacity={0.8} />
-                                                <stop offset="95%" stopColor="var(--color-newCost)" stopOpacity={0} />
-                                            </linearGradient>
-                                            <linearGradient id="colorCurrentAdv" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="var(--color-currentCost)" stopOpacity={0.8} />
-                                                <stop offset="95%" stopColor="var(--color-currentCost)" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="year" unit=" yr" />
-                                        <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} width={80} />
-                                        <Tooltip />
-                                        <Legend />
-                                        <Area type="monotone" dataKey="currentCost" name="Current Path" strokeWidth={2} stroke="var(--color-currentCost)" fillOpacity={1} fill="url(#colorCurrentAdv)" />
-                                        <Area type="monotone" dataKey="newCost" name="Upgrade Path" strokeWidth={2} stroke="var(--color-newCost)" fillOpacity={1} fill="url(#colorNewAdv)" />
-                                    </AreaChart>
-                                </ChartContainer>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <Alert variant="destructive">
-                            <Flame className="h-4 w-4" />
-                            <AlertTitle>Warning</AlertTitle>
-                            <AlertDescription>
-                                Current path leads to rising fees with no flexible exit strategy.
-                            </AlertDescription>
-                        </Alert>
-                         <Alert className="border-success/30 bg-success/10 text-foreground">
-                            <Sparkles className="h-4 w-4 text-success" />
-                            <AlertTitle className="text-foreground">Advantage</AlertTitle>
-                            <AlertDescription>
-                                Upgrade plan uses your points smarter, reducing long-term costs.
-                            </AlertDescription>
-                        </Alert>
-                    </div>
-                 </div>
+            <div className="grid lg:grid-cols-2 gap-8">
+                <CurrentOwnershipProjection />
+                <NewOwnershipProjection />
             </div>
         </div>
     );

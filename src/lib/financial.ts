@@ -65,7 +65,8 @@ export function generateCurrentPathProjection(
     mfInflation: number,
     specialAssessment: number,
     monthlyLoanPayment: number,
-    loanTermRemainingMonths: number
+    loanTermRemainingMonths: number,
+    annualOffset: number = 0
 ) {
     const projection = [];
     let cumulativeMf = 0;
@@ -79,13 +80,15 @@ export function generateCurrentPathProjection(
         cumulativeMf += inflatedMfForYear;
         cumulativeLoanPaid += loanPaidForYear;
 
+        const cumulativeCost = cumulativeMf + cumulativeLoanPaid + specialAssessment - (annualOffset * i);
+
         projection.push({
             year: i,
             maintenanceFees: Math.round(inflatedMfForYear),
             loanPayments: Math.round(loanPaidForYear),
             monthlyMf: inflatedMfForYear / 12,
             monthlyLoan: paymentsInYear > 0 ? monthlyLoanPayment : 0,
-            cumulativeCost: Math.round(cumulativeMf + cumulativeLoanPaid + specialAssessment)
+            cumulativeCost: Math.round(Math.max(0, cumulativeCost))
         });
     }
 

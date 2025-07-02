@@ -27,6 +27,8 @@ interface FullAppState extends AppState {
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
   currentPathProjection: { year: number; maintenanceFees: number; loanPayments: number; monthlyMf: number; monthlyLoan: number; cumulativeCost: number; }[];
   currentPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
+  newPathProjection: { year: number; maintenanceFees: number; loanPayments: number; monthlyMf: number; monthlyLoan: number; cumulativeCost: number; }[];
+  newPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
   projectedVIPLevel: string;
@@ -126,17 +128,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // --- Points and Projections ---
     const isClubMember = ownerProfile.ownershipType === 'Capital Club Member';
 
-    // For existing Club members, their current points are their base. Deeded owners aren't in the club yet.
     const currentPoints = isClubMember ? (ownerProfile.currentPoints || 0) : 0;
     
-    // Calculate total points after the upgrade proposal.
     let totalPointsAfterUpgrade;
     if (isClubMember) {
-        // For Club Members, the new total is their current points plus newly added points.
-        // This fixes a bug where string concatenation was occurring instead of numeric addition.
         totalPointsAfterUpgrade = Number(currentPoints) + Number(upgradeProposal.newPointsAdded || 0);
     } else {
-        // For Deeded Owners, the new total is their deed's value (converted to points) plus newly added points.
         totalPointsAfterUpgrade = Number(ownerProfile.deedPointValue || 0) + Number(upgradeProposal.newPointsAdded || 0);
     }
     
@@ -159,6 +156,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0
     );
 
+    const newPathData = generateCurrentPathProjection(
+        projectionYears,
+        (upgradeProposal.projectedMF || 0) * 12, 
+        upgradeProposal.newMfInflationRate, 
+        0, // no special assessment on new proposal
+        upgradeProposal.newMonthlyLoanPayment || 0, 
+        upgradeProposal.newLoanTerm,
+        usePointOffset ? totalAnnualOffset : 0
+    );
+
     const currentVIPLevel = isClubMember ? getVipTierFromPoints(currentPoints) : 'Deeded';
     const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
 
@@ -169,6 +176,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       costProjectionData,
       currentPathProjection: currentPathData.projection,
       currentPathSummary: currentPathData.summary,
+      newPathProjection: newPathData.projection,
+      newPathSummary: newPathData.summary,
       currentVIPLevel,
       projectedVIPLevel
     };
