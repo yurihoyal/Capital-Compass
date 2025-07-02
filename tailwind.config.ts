@@ -54,11 +54,11 @@ export default {
         },
         success: {
           DEFAULT: 'hsl(var(--success))',
-          foreground: 'hsl(var(--primary-foreground))'
+          foreground: 'hsl(var(--foreground))'
         },
         warning: {
           DEFAULT: 'hsl(var(--warning))',
-          foreground: 'hsl(var(--primary-foreground))'
+          foreground: 'hsl(var(--foreground))'
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
