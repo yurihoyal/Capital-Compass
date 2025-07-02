@@ -13,10 +13,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertTriangle, Info, Sparkles } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { Skeleton } from "./ui/skeleton";
 import { Slider } from "./ui/slider";
 import CurrentOwnershipProjection from './current-ownership-projection';
 import { cn, getTierBadgeClass } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 
 
 const DeededOwnerWarning = () => (
@@ -71,6 +71,7 @@ const VipTierDisplay = () => {
 
 const OwnerProfileForm = () => {
   const { state, dispatch } = useAppContext();
+  const { projectionYears } = state;
 
   const form = useForm<OwnerProfile>({
     resolver: zodResolver(OwnerProfileSchema),
@@ -103,6 +104,10 @@ const OwnerProfileForm = () => {
           setValue('deedPointValue', 0);
       }
       handleFormChange();
+  };
+
+  const handleProjectionYearChange = (value: string) => {
+    dispatch({ type: 'SET_PROJECTION_YEARS', payload: parseInt(value, 10) as 10 | 15 | 20 });
   };
 
   return (
@@ -284,6 +289,15 @@ const OwnerProfileForm = () => {
             </div>
             {/* Right Column: Projection */}
             <div>
+              <div className="flex justify-end mb-4">
+                  <Tabs defaultValue={String(projectionYears)} onValueChange={handleProjectionYearChange} className="w-[270px]">
+                      <TabsList className="grid w-full grid-cols-3">
+                          <TabsTrigger value="10">10 Years</TabsTrigger>
+                          <TabsTrigger value="15">15 Years</TabsTrigger>
+                          <TabsTrigger value="20">20 Years</TabsTrigger>
+                      </TabsList>
+                  </Tabs>
+              </div>
               <CurrentOwnershipProjection />
             </div>
         </div>
