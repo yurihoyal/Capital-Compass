@@ -49,9 +49,6 @@ const ComparisonView = () => {
       <Card>
         <CardHeader className="text-center">
             <CardTitle className="font-headline text-2xl">Total Annual Potential Value</CardTitle>
-            <CardDescription>
-                Estimated total annual value from your new ownership, combining VIP perks, credit card rewards, and rental programs.
-            </CardDescription>
         </CardHeader>
         <CardContent>
             <p className="text-5xl font-bold text-success text-center">{formatCurrency(totalAnnualPotential)}</p>
