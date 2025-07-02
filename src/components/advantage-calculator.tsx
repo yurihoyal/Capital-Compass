@@ -22,14 +22,16 @@ const AdvantageCalculator = () => {
     };
 
     return (
-        <div className="space-y-8">
-             <Card>
-                <CardHeader>
+        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <CurrentOwnershipProjection />
+
+            <Card className="h-full flex flex-col justify-center">
+                <CardHeader className="items-center text-center">
                     <CardTitle className="font-headline text-2xl">Advantage Controls</CardTitle>
-                    <CardDescription>Adjust the projection timeline and strategy to see the full financial picture.</CardDescription>
+                    <CardDescription>Adjust projection timeline and strategy.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                    <div className="flex items-center space-x-2">
+                <CardContent className="flex flex-col items-center gap-6">
+                    <div className="flex flex-col items-center space-y-2 text-center">
                         <Label htmlFor="point-offset" className="text-base">Enable Point Offset Strategy</Label>
                         <Switch id="point-offset" checked={usePointOffset} onCheckedChange={handleOffsetToggle} />
                     </div>
@@ -43,10 +45,7 @@ const AdvantageCalculator = () => {
                 </CardContent>
             </Card>
 
-            <div className="grid lg:grid-cols-2 gap-8">
-                <CurrentOwnershipProjection />
-                <NewOwnershipProjection />
-            </div>
+            <NewOwnershipProjection />
         </div>
     );
 };
