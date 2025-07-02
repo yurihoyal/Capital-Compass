@@ -49,6 +49,7 @@ const ComparisonView = () => {
       <Card>
         <CardHeader className="text-center">
             <CardTitle className="font-headline text-2xl">Total Annual Potential Value</CardTitle>
+            <CardDescription>Includes VIP booking discounts, 5X travel rewards, and Owner Assistance payouts — converting unused points into real value to reduce your annual ownership cost.</CardDescription>
         </CardHeader>
         <CardContent>
             <p className="text-5xl font-bold text-success text-center">{formatCurrency(totalAnnualPotential)}</p>

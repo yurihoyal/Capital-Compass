@@ -103,6 +103,7 @@ const NewOwnershipProjection = () => {
         <div className="mt-4 pt-4 border-t">
             <h4 className="font-semibold text-center mb-2">Total Annual Potential Value</h4>
             <p className="text-3xl font-bold text-success text-center">{formatTotalPotential(totalAnnualPotential)}</p>
+            <p className="text-xs text-muted-foreground text-center mt-1 px-4">Includes VIP booking discounts, 5X travel rewards, and Owner Assistance payouts — converting unused points into real value to reduce your annual ownership cost.</p>
         </div>
       </CardContent>
     </Card>
