@@ -132,20 +132,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     
     let totalPointsAfterUpgrade;
     if (isClubMember) {
-        totalPointsAfterUpgrade = Number(currentPoints) + Number(upgradeProposal.newPointsAdded || 0);
+        totalPointsAfterUpgrade = Number(ownerProfile.currentPoints || 0) + Number(upgradeProposal.newPointsAdded || 0);
     } else {
         totalPointsAfterUpgrade = Number(ownerProfile.deedPointValue || 0) + Number(upgradeProposal.newPointsAdded || 0);
     }
     
     const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
-    let totalAnnualOffset = pointOffsetCredit + (calculatedRewards.annualCredit || 0);
+    const creditCardAnnualOffset = calculatedRewards.annualCredit || 0;
+    const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
 
     const costProjectionData = generateCostProjection(
         projectionYears,
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
-        ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0,
+        Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0,
         (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
-        upgradeProposal.newMonthlyLoanPayment || 0, 
+        Number(upgradeProposal.newMonthlyLoanPayment) || 0, 
         upgradeProposal.newLoanTerm,
         totalAnnualOffset
     );
@@ -153,7 +154,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const currentPathData = generateCurrentPathProjection(
         projectionYears,
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
-        ownerProfile.currentMonthlyLoanPayment || 0, ownerProfile.currentLoanTerm || 0
+        Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0
     );
 
     const newPathData = generateCurrentPathProjection(
@@ -161,9 +162,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (upgradeProposal.projectedMF || 0) * 12, 
         upgradeProposal.newMfInflationRate, 
         0, // no special assessment on new proposal
-        upgradeProposal.newMonthlyLoanPayment || 0, 
+        Number(upgradeProposal.newMonthlyLoanPayment) || 0, 
         upgradeProposal.newLoanTerm,
-        usePointOffset ? totalAnnualOffset : 0
+        pointOffsetCredit
     );
 
     const currentVIPLevel = isClubMember ? getVipTierFromPoints(currentPoints) : 'Deeded';
