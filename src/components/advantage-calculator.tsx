@@ -101,9 +101,9 @@ const AdvantageCalculator = () => {
                                 Current path leads to rising fees with no flexible exit strategy.
                             </AlertDescription>
                         </Alert>
-                         <Alert className="border-green-600/30 bg-green-600/10 text-green-900 dark:text-green-200">
-                            <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
-                            <AlertTitle className="text-green-800 dark:text-green-300">Advantage</AlertTitle>
+                         <Alert className="border-success/30 bg-success/10 text-foreground">
+                            <Sparkles className="h-4 w-4 text-success" />
+                            <AlertTitle className="text-foreground">Advantage</AlertTitle>
                             <AlertDescription>
                                 Upgrade plan uses your points smarter, reducing long-term costs.
                             </AlertDescription>

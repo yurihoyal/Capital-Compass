@@ -77,11 +77,11 @@ const RecapSheet = () => {
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="text-center">
                                     <p className="text-muted-foreground">10-Year Savings with Upgrade</p>
-                                    <p className="text-4xl font-bold text-green-600 dark:text-green-400">${costDifference10Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-4xl font-bold text-success">${costDifference10Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                 </div>
                                  <div className="text-center">
                                     <p className="text-muted-foreground">20-Year Savings with Upgrade</p>
-                                    <p className="text-4xl font-bold text-green-600 dark:text-green-400">${costDifference20Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-4xl font-bold text-success">${costDifference20Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                 </div>
                             </div>
                              <p className="text-center text-muted-foreground pt-2">Includes projected MF inflation and credit card rewards of an estimated ${ (rewardsCalculator.annualCredit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}/year.</p>

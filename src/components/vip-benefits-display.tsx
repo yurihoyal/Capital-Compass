@@ -160,9 +160,9 @@ const DeededAlert = () => (
 
 const BenefitItem = ({ benefit, tier }: { benefit: Benefit; tier: VipTier }) => {
     const iconMap: Record<BenefitStatus, React.ReactNode> = {
-        positive: <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />,
+        positive: <Check className="h-5 w-5 text-success mr-3 mt-0.5 flex-shrink-0" />,
         negative: <XCircle className="h-5 w-5 text-destructive mr-3 mt-0.5 flex-shrink-0" />,
-        special: <Star className="h-5 w-5 text-yellow-500 mr-3 mt-0.5 flex-shrink-0" />,
+        special: <Star className="h-5 w-5 text-warning mr-3 mt-0.5 flex-shrink-0" />,
         neutral: <Check className="h-5 w-5 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />,
     };
 

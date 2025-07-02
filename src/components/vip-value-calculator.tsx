@@ -73,16 +73,16 @@ const VipValueCalculator = () => {
                     </div>
                     <div className="p-4 bg-muted rounded-lg">
                         <Label>Annual Value Gained</Label>
-                        <p className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(annualValueGained)}</p>
+                        <p className="text-xl font-bold text-success">{formatCurrency(annualValueGained)}</p>
                     </div>
                      <div className="p-4 bg-muted rounded-lg">
                         <Label>Bonus Point Equivalent</Label>
-                        <p className="text-xl font-bold text-green-600 dark:text-green-400">{formatNumber(pointEquivalent)} pts</p>
+                        <p className="text-xl font-bold text-success">{formatNumber(pointEquivalent)} pts</p>
                     </div>
                 </div>
 
-                <div className="text-center p-4 border rounded-lg bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-                    <p className="text-lg text-green-800 dark:text-green-200">
+                <div className="text-center p-4 border rounded-lg bg-success/10 border-success/20">
+                    <p className="text-lg text-foreground">
                         Your new VIP level delivers an estimated <strong className="font-bold">{formatCurrency(annualValueGained)}</strong> in added value every year.
                     </p>
                 </div>

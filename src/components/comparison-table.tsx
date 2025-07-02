@@ -65,14 +65,14 @@ const ComparisonTable = () => {
         {
             feature: 'Credit Card Offset',
             now: <span className="text-muted-foreground">N/A</span>,
-            new: <span className="text-green-600 dark:text-green-400">-${(rewardsCalculator.monthlyCredit || 0).toFixed(2)}/mo</span>,
+            new: <span className="text-success">-${(rewardsCalculator.monthlyCredit || 0).toFixed(2)}/mo</span>,
             sentiment: 'positive'
         }
     ];
 
     const renderSentimentIcon = (sentiment?: 'positive' | 'negative' | 'neutral') => {
         switch(sentiment) {
-            case 'positive': return <ArrowDown className="h-4 w-4 text-green-600 dark:text-green-400" />;
+            case 'positive': return <ArrowDown className="h-4 w-4 text-success" />;
             case 'negative': return <ArrowUp className="h-4 w-4 text-destructive" />;
             default: return <Minus className="h-4 w-4 text-muted-foreground" />;
         }

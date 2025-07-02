@@ -64,7 +64,7 @@ const TravelServicesValueCalculator = () => {
                     <div className="grid grid-cols-1 gap-4 text-center">
                         <div className="p-3 bg-muted rounded-lg">
                             <Label>Cash Value of Points</Label>
-                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(travelServicesCalculator.cashValueOfPoints || 0)}</p>
+                            <p className="text-2xl font-bold text-success">{formatCurrency(travelServicesCalculator.cashValueOfPoints || 0)}</p>
                         </div>
                     </div>
                 </div>

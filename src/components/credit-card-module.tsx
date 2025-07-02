@@ -94,7 +94,7 @@ const RewardsSavingsCalculator = () => {
 
                     <div className="mt-4 text-center p-4 rounded-lg border">
                         <p className="text-sm text-muted-foreground">Monthly Maintenance Fee Offset</p>
-                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                        <p className="text-3xl font-bold text-success">
                             ${(rewardsCalculator.monthlyCredit || 0).toFixed(2)}
                         </p>
                         <p className="text-sm text-muted-foreground">(Annual Credit: ${(rewardsCalculator.annualCredit || 0).toFixed(2)})</p>

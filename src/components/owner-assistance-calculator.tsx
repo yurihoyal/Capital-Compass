@@ -47,7 +47,7 @@ const OwnerAssistanceCalculator = () => {
                     <div className="p-4 bg-muted rounded-lg">
                         <p className="text-sm font-medium text-muted-foreground">Potential Annual Payout</p>
                         <div className="flex items-center justify-center gap-2">
-                            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(netPayout)}</p>
+                            <p className="text-3xl font-bold text-success">{formatCurrency(netPayout)}</p>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>

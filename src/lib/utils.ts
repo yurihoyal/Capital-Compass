@@ -8,13 +8,13 @@ export function cn(...inputs: ClassValue[]) {
 export const getTierBadgeClass = (tier: string) => {
     switch (tier) {
         case 'Platinum':
-            return 'bg-success text-foreground hover:bg-success/90 border-transparent'; // Fresh Teal
+            return 'bg-success text-success-foreground hover:bg-success/90 border-transparent';
         case 'Gold':
-            return 'bg-secondary text-secondary-foreground hover:bg-secondary/90 border-transparent'; // Picton Blue
+            return 'bg-secondary text-secondary-foreground hover:bg-secondary/90 border-transparent';
         case 'Silver':
-            return 'bg-border text-primary-foreground hover:bg-border/90 border-transparent'; // Pamper Teal Gray
+            return 'bg-foreground text-background hover:bg-foreground/90 border-transparent';
         case 'Preferred':
         default:
-            return 'bg-primary text-primary-foreground hover:bg-primary/90 border-transparent'; // Sea Blue
+            return 'bg-primary text-primary-foreground hover:bg-primary/90 border-transparent';
     }
 };
