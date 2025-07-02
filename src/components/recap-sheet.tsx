@@ -49,7 +49,7 @@ const RecapSheet = () => {
             <div className="printable-area">
                 <Card className="print:shadow-none print:border-none">
                     <CardHeader className="text-center">
-                        <CardTitle className="font-headline text-3xl">Capital Closer Proposal</CardTitle>
+                        <CardTitle className="font-headline text-3xl">Capital Compass Proposal</CardTitle>
                         <CardDescription className="text-lg">For: {ownerProfile.ownerName || 'Valued Owner'}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">

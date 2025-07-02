@@ -12,7 +12,7 @@ import RecapSheet from './recap-sheet';
 import AiAssistant from './ai-assistant';
 import { ScrollArea } from './ui/scroll-area';
 
-export function CapitalCloserClient() {
+export function CapitalCompassClient() {
   return (
     <AppProvider>
       <div className="flex flex-col h-screen bg-background">

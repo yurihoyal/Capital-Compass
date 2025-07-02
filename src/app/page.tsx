@@ -1,5 +1,5 @@
-import { CapitalCloserClient } from "@/components/capital-closer-client";
+import { CapitalCompassClient } from "@/components/capital-closer-client";
 
 export default function Home() {
-  return <CapitalCloserClient />;
+  return <CapitalCompassClient />;
 }
