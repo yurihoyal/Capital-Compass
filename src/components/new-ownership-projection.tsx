@@ -52,9 +52,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const NewOwnershipProjection = () => {
   const { state } = useAppContext();
-  const { newPathProjection, newPathSummary, projectionYears, usePointOffset } = state;
+  const { newPathProjection, newPathSummary, projectionYears, usePointOffset, totalAnnualPotential } = state;
 
   const formatCurrency = (value) => value >= 0 ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : `-$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const formatTotalPotential = (value: number) => (value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
 
   return (
     <Card className="h-full flex flex-col bg-success/10">
@@ -97,6 +99,11 @@ const NewOwnershipProjection = () => {
                 <span>Total MFs: <span className="font-medium text-foreground">{formatCurrency(newPathSummary.totalMf)}</span></span>
                 <span>Total Loan: <span className="font-medium text-foreground">{formatCurrency(newPathSummary.totalLoanPaid)}</span></span>
             </div>
+        </div>
+        <div className="mt-4 pt-4 border-t">
+            <h4 className="font-semibold text-center mb-2">Total Annual Potential Value</h4>
+            <p className="text-3xl font-bold text-success text-center">{formatTotalPotential(totalAnnualPotential)}</p>
+            <p className="text-xs text-muted-foreground text-center mt-1">Includes VIP value, rewards, and rental potential.</p>
         </div>
       </CardContent>
     </Card>

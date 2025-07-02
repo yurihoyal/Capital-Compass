@@ -13,9 +13,11 @@ import OwnerAssistanceCalculator from './owner-assistance-calculator';
 
 const ComparisonView = () => {
   const { state } = useAppContext();
-  const { ownerProfile, currentVIPLevel, projectedVIPLevel } = state;
+  const { ownerProfile, currentVIPLevel, projectedVIPLevel, totalAnnualPotential } = state;
 
   const currentTierForDisplay = ownerProfile.ownershipType === 'Deeded Only' ? 'Deeded' : currentVIPLevel;
+  
+  const formatCurrency = (value: number) => (value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <div className="space-y-8">
@@ -43,6 +45,18 @@ const ComparisonView = () => {
         <TravelServicesValueCalculator />
         <OwnerAssistanceCalculator />
       </div>
+
+      <Card>
+        <CardHeader className="text-center">
+            <CardTitle className="font-headline text-2xl">Total Annual Potential Value</CardTitle>
+            <CardDescription>
+                Estimated total annual value from your new ownership, combining VIP perks, credit card rewards, and rental programs.
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <p className="text-5xl font-bold text-success text-center">{formatCurrency(totalAnnualPotential)}</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -6,47 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 
-type Tier = 'Deeded' | 'Preferred' | 'Silver' | 'Gold' | 'Platinum' | string;
-
-interface PerkValues {
-    bookingWindow: number;
-    unitUpgrades: number;
-    goWeeks: number;
-    flexAccess: number;
-    guestCerts: number;
-    aspireBanking: number;
-    exclusiveServices: number;
-}
-
-// Estimated annual values for each perk by tier
-const tierValueMap: Record<Tier, PerkValues> = {
-    Deeded:           { bookingWindow: 0,      unitUpgrades: 0,   goWeeks: 0,     flexAccess: 0,    guestCerts: 0,  aspireBanking: 0,   exclusiveServices: 0 },
-    Preferred:        { bookingWindow: 150*10, unitUpgrades: 0,   goWeeks: 200,   flexAccess: 50*1, guestCerts: 30, aspireBanking: 0,   exclusiveServices: 0 },
-    Silver:           { bookingWindow: 150*11, unitUpgrades: 0,   goWeeks: 400,   flexAccess: 50*2, guestCerts: 60, aspireBanking: 50,  exclusiveServices: 0 },
-    Gold:             { bookingWindow: 150*12, unitUpgrades: 375, goWeeks: 600,   flexAccess: 50*4, guestCerts: 90, aspireBanking: 100, exclusiveServices: 400 },
-    Platinum:         { bookingWindow: 150*13, unitUpgrades: 500, goWeeks: 1000,  flexAccess: 50*6, guestCerts: 120,aspireBanking: 150, exclusiveServices: 800 },
-};
-
-
 const VipValueCalculator = () => {
     const { state } = useAppContext();
-    const { currentVIPLevel, projectedVIPLevel } = state;
+    const { currentVIPLevel, projectedVIPLevel, annualVipValueGained: annualValueGained } = state;
     const [mfPerPoint, setMfPerPoint] = useState(0.0070);
 
-    const { annualValueGained, pointEquivalent } = useMemo(() => {
-        const currentPerks = tierValueMap[currentVIPLevel] ?? tierValueMap.Deeded;
-        const newPerks = tierValueMap[projectedVIPLevel] ?? tierValueMap.Deeded;
-
-        const getCurrentValue = (perks: PerkValues) => Object.values(perks).reduce((sum, val) => sum + val, 0);
-
-        const currentValue = getCurrentValue(currentPerks);
-        const newValue = getCurrentValue(newPerks);
-        
-        const annualValueGained = Math.max(0, newValue - currentValue);
+    const { pointEquivalent } = useMemo(() => {
         const pointEquivalent = mfPerPoint > 0 ? annualValueGained / mfPerPoint : 0;
-        
-        return { annualValueGained, pointEquivalent };
-    }, [currentVIPLevel, projectedVIPLevel, mfPerPoint]);
+        return { pointEquivalent };
+    }, [annualValueGained, mfPerPoint]);
     
     if (annualValueGained <= 0 || currentVIPLevel === projectedVIPLevel) {
         return null;

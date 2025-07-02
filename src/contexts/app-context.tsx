@@ -13,6 +13,36 @@ const getVipTierFromPoints = (points: number): string => {
     return 'Preferred';
 };
 
+// --- START: Centralized Calculation Constants ---
+interface PerkValues {
+    bookingWindow: number;
+    unitUpgrades: number;
+    goWeeks: number;
+    flexAccess: number;
+    guestCerts: number;
+    aspireBanking: number;
+    exclusiveServices: number;
+}
+type Tier = 'Deeded' | 'Preferred' | 'Silver' | 'Gold' | 'Platinum' | string;
+
+const tierValueMap: Record<Tier, PerkValues> = {
+    Deeded:           { bookingWindow: 0,      unitUpgrades: 0,   goWeeks: 0,     flexAccess: 0,    guestCerts: 0,  aspireBanking: 0,   exclusiveServices: 0 },
+    Preferred:        { bookingWindow: 150*10, unitUpgrades: 0,   goWeeks: 200,   flexAccess: 50*1, guestCerts: 30, aspireBanking: 0,   exclusiveServices: 0 },
+    Silver:           { bookingWindow: 150*11, unitUpgrades: 0,   goWeeks: 400,   flexAccess: 50*2, guestCerts: 60, aspireBanking: 50,  exclusiveServices: 0 },
+    Gold:             { bookingWindow: 150*12, unitUpgrades: 375, goWeeks: 600,   flexAccess: 50*4, guestCerts: 90, aspireBanking: 100, exclusiveServices: 400 },
+    Platinum:         { bookingWindow: 150*13, unitUpgrades: 500, goWeeks: 1000,  flexAccess: 50*6, guestCerts: 120,aspireBanking: 150, exclusiveServices: 800 },
+};
+
+const ownerAssistanceRateMap: Record<string, number> = {
+    Platinum: 0.0045,
+    Gold: 0.0042,
+    Silver: 0.0039,
+    Preferred: 0.0036,
+};
+const defaultOwnerAssistanceRate = 0.0033;
+// --- END: Centralized Calculation Constants ---
+
+
 interface AppState {
   ownerProfile: OwnerProfile;
   upgradeProposal: UpgradeProposal;
@@ -32,6 +62,9 @@ interface FullAppState extends AppState {
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
   projectedVIPLevel: string;
+  annualVipValueGained: number;
+  ownerAssistancePayout: number;
+  totalAnnualPotential: number;
 }
 
 const initialCoreState: AppState = {
@@ -157,6 +190,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0
     );
 
+    const newPathAnnualOffset = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
     const newPathData = generateCurrentPathProjection(
         projectionYears,
         (upgradeProposal.projectedMF || 0) * 12, 
@@ -164,11 +198,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         0, // no special assessment on new proposal
         Number(upgradeProposal.newMonthlyLoanPayment) || 0, 
         upgradeProposal.newLoanTerm,
-        pointOffsetCredit
+        newPathAnnualOffset
     );
 
     const currentVIPLevel = isClubMember ? getVipTierFromPoints(currentPoints) : 'Deeded';
     const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
+
+    // --- Calculate Annual VIP Value Gained ---
+    const currentPerks = tierValueMap[currentVIPLevel] ?? tierValueMap.Deeded;
+    const newPerks = tierValueMap[projectedVIPLevel] ?? tierValueMap.Deeded;
+    const getPerkValue = (perks: PerkValues) => Object.values(perks).reduce((sum, val) => sum + val, 0);
+    const currentValue = getPerkValue(currentPerks);
+    const newValue = getPerkValue(newPerks);
+    const annualVipValueGained = Math.max(0, newValue - currentValue);
+
+    // --- Calculate Owner Assistance Payout ---
+    const eligiblePoints = (totalPointsAfterUpgrade || 0) * 0.5;
+    const rate = ownerAssistanceRateMap[projectedVIPLevel] || defaultOwnerAssistanceRate;
+    const ownerAssistancePayout = projectedVIPLevel === 'Deeded' ? 0 : eligiblePoints * rate;
+
+    // --- Calculate Total Annual Potential ---
+    const totalAnnualPotential = 
+        annualVipValueGained + 
+        (calculatedRewards.annualCredit || 0) + 
+        (calculatedTravelServices.cashValueOfPoints || 0) + 
+        ownerAssistancePayout;
 
     return {
       totalPointsAfterUpgrade,
@@ -180,7 +234,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       newPathProjection: newPathData.projection,
       newPathSummary: newPathData.summary,
       currentVIPLevel,
-      projectedVIPLevel
+      projectedVIPLevel,
+      annualVipValueGained,
+      ownerAssistancePayout,
+      totalAnnualPotential,
     };
   }, [ownerProfile, upgradeProposal, rewardsCalculator, travelServicesCalculator, projectionYears, usePointOffset]);
 

@@ -10,19 +10,8 @@ import { cn, getTierBadgeClass } from '@/lib/utils';
 
 const OwnerAssistanceCalculator = () => {
     const { state } = useAppContext();
-    const { totalPointsAfterUpgrade, projectedVIPLevel } = state;
-
-    const rateMap: Record<string, number> = {
-        Platinum: 0.0045,
-        Gold: 0.0042,
-        Silver: 0.0039,
-        Preferred: 0.0036,
-    };
-    const defaultRate = 0.0033; // For Deeded or other non-VIP cases
-
-    const eligiblePoints = (totalPointsAfterUpgrade || 0) * 0.5;
-    const rate = rateMap[projectedVIPLevel] || defaultRate;
-    const netPayout = eligiblePoints * rate;
+    const { projectedVIPLevel, ownerAssistancePayout } = state;
+    const netPayout = ownerAssistancePayout;
 
     // Don't show this calculator if there's no upgrade path or no points
     if (projectedVIPLevel === 'Deeded' || netPayout <= 0) {
