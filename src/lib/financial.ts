@@ -69,32 +69,34 @@ export function generateCurrentPathProjection(
     annualOffset: number = 0
 ) {
     const projection = [];
-    let cumulativeMf = 0;
     let cumulativeLoanPaid = 0;
+    let cumulativeCostWithOffset = specialAssessment;
 
     for (let i = 1; i <= years; i++) {
         const inflatedMfForYear = mf * Math.pow(1 + mfInflation / 100, i - 1);
         const paymentsInYear = Math.min(i * 12, loanTermRemainingMonths) - Math.min((i - 1) * 12, loanTermRemainingMonths);
         const loanPaidForYear = monthlyLoanPayment * paymentsInYear;
         
-        cumulativeMf += inflatedMfForYear;
+        const netMaintenanceFeesForYear = Math.max(0, inflatedMfForYear - annualOffset);
+        
         cumulativeLoanPaid += loanPaidForYear;
-
-        const cumulativeCost = cumulativeMf + cumulativeLoanPaid + specialAssessment - (annualOffset * i);
+        cumulativeCostWithOffset += netMaintenanceFeesForYear + loanPaidForYear;
 
         projection.push({
             year: i,
-            maintenanceFees: Math.round(inflatedMfForYear),
+            maintenanceFees: Math.round(netMaintenanceFeesForYear),
             loanPayments: Math.round(loanPaidForYear),
-            monthlyMf: inflatedMfForYear / 12,
+            monthlyMf: netMaintenanceFeesForYear / 12,
             monthlyLoan: paymentsInYear > 0 ? monthlyLoanPayment : 0,
-            cumulativeCost: Math.round(Math.max(0, cumulativeCost))
+            cumulativeCost: Math.round(Math.max(0, cumulativeCostWithOffset))
         });
     }
 
+    const totalNetMf = projection.reduce((sum, p) => sum + p.maintenanceFees, 0);
+
     const summary = {
         totalCost: projection.length > 0 ? projection[projection.length - 1].cumulativeCost : specialAssessment,
-        totalMf: cumulativeMf,
+        totalMf: totalNetMf,
         totalLoanPaid: cumulativeLoanPaid,
     };
 
