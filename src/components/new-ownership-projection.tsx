@@ -42,7 +42,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         </div>
         <p className="intro font-bold mt-2 border-t pt-2 flex justify-between items-center">
             <span>Total Monthly Cost:</span>
-            <span>${totalMonthly.toFixed(2)}</span>
+            <span className="font-semibold ml-2">${totalMonthly.toFixed(2)}</span>
         </p>
       </div>
     );
