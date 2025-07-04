@@ -2,7 +2,7 @@
 import { useAppContext } from '@/contexts/app-context';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from './ui/badge';
-import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Minus, Sparkles } from 'lucide-react';
 import { ComparisonItem } from '@/types';
 import { calculateFutureValue } from '@/lib/financial';
 import { cn, getTierBadgeClass } from '@/lib/utils';
@@ -35,8 +35,8 @@ const ComparisonTable = () => {
     const comparisonData: ComparisonItem[] = [
         {
             feature: 'VIP Tier',
-            now: <Badge className={cn(getTierBadgeClass(currentVIPLevel))}>{currentVIPLevel || 'N/A'}</Badge>,
-            new: <Badge className={cn(getTierBadgeClass(projectedVIPLevel))}>{projectedVIPLevel || 'N/A'}</Badge>,
+            now: <Badge className={cn("text-base flex items-center gap-2", getTierBadgeClass(currentVIPLevel))}><Sparkles size={16}/> {currentVIPLevel || 'N/A'}</Badge>,
+            new: <Badge className={cn("text-base flex items-center gap-2", getTierBadgeClass(projectedVIPLevel))}><Sparkles size={16}/> {projectedVIPLevel || 'N/A'}</Badge>,
         },
         {
             feature: 'Points',
