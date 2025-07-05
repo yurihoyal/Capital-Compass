@@ -54,7 +54,7 @@ const NewOwnershipProjection = () => {
   const { state } = useAppContext();
   const { newPathProjection, newPathSummary, projectionYears, usePointOffset, totalAnnualPotential } = state;
 
-  const formatCurrency = (value) => value >= 0 ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : `-$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const formatCurrency = (value: number) => value >= 0 ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : `-$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const formatTotalPotential = (value: number) => (value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 
@@ -83,7 +83,7 @@ const NewOwnershipProjection = () => {
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" unit=" yr" />
+                    <XAxis dataKey="year" unit=" yr" type="number" domain={['dataMin', 'dataMax']} />
                     <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} width={80} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend />
