@@ -1,21 +1,55 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAppContext } from '@/contexts/app-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { Printer } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { generateCostProjection } from '@/lib/financial';
+
+const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
 const RecapSheet = () => {
     const { state } = useAppContext();
-    const { ownerProfile, rewardsCalculator, costProjectionData, currentVIPLevel, projectedVIPLevel, totalPointsAfterUpgrade } = state;
+    const { 
+        ownerProfile, 
+        upgradeProposal, 
+        rewardsCalculator, 
+        currentVIPLevel, 
+        projectedVIPLevel, 
+        totalPointsAfterUpgrade, 
+        usePointOffset 
+    } = state;
 
     const handlePrint = () => {
         window.print();
     };
 
-    const costDifference10Years = (costProjectionData.find(d => d.year === 10)?.currentCost || 0) - (costProjectionData.find(d => d.year === 10)?.newCost || 0);
-    const costDifference20Years = (costProjectionData.find(d => d.year === 20)?.currentCost || 0) - (costProjectionData.find(d => d.year === 20)?.newCost || 0);
+    // The costProjectionData from context is dependent on the selected projection years (10, 15, 20).
+    // The recap sheet always needs 10 and 20-year savings data, so we recalculate it here.
+    const recapProjectionData = useMemo(() => {
+        // This logic mirrors the offset calculation in app-context.tsx to ensure consistency.
+        const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
+        const creditCardAnnualOffset = rewardsCalculator.annualCredit || 0;
+        const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
+
+        return generateCostProjection(
+            20, // Always calculate for 20 years for the recap sheet
+            (ownerProfile.maintenanceFee || 0) * 12,
+            ownerProfile.mfInflationRate,
+            ownerProfile.specialAssessment || 0,
+            Number(ownerProfile.currentMonthlyLoanPayment) || 0,
+            Number(ownerProfile.currentLoanTerm) || 0,
+            (upgradeProposal.projectedMF || 0) * 12,
+            upgradeProposal.newMfInflationRate,
+            Number(upgradeProposal.newMonthlyLoanPayment) || 0,
+            upgradeProposal.newLoanTerm,
+            totalAnnualOffset
+        );
+    }, [ownerProfile, upgradeProposal, rewardsCalculator, totalPointsAfterUpgrade, usePointOffset]);
+
+    const costDifference10Years = (recapProjectionData.find(d => d.year === 10)?.currentCost || 0) - (recapProjectionData.find(d => d.year === 10)?.newCost || 0);
+    const costDifference20Years = (recapProjectionData.find(d => d.year === 20)?.currentCost || 0) - (recapProjectionData.find(d => d.year === 20)?.newCost || 0);
 
     return (
         <>
