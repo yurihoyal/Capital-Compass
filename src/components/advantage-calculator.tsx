@@ -32,7 +32,7 @@ const AdvantageCalculator = () => {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-6">
                     <div className="flex flex-col items-center space-y-2 text-center">
-                        <Label htmlFor="point-offset" className="text-base">Enable Point Offset Strategy</Label>
+                        <Label htmlFor="point-offset" className="text-base">Enable points savings program</Label>
                         <Switch id="point-offset" checked={usePointOffset} onCheckedChange={handleOffsetToggle} />
                     </div>
                      <Tabs defaultValue={String(projectionYears)} onValueChange={handleProjectionYearChange} className="w-[270px]">
