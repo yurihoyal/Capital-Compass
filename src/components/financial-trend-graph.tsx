@@ -20,6 +20,7 @@ const chartConfig = {
 const FinancialTrendGraph = () => {
     const { state, dispatch } = useAppContext();
     const { costProjectionData, projectionYears } = state;
+    const yearTicks = Array.from({ length: projectionYears }, (_, i) => i + 1);
 
     const handleTabChange = (value: string) => {
         dispatch({ type: 'SET_PROJECTION_YEARS', payload: parseInt(value, 10) as 10 | 15 | 20 });
@@ -63,7 +64,7 @@ const FinancialTrendGraph = () => {
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" unit=" yr" interval={0} />
+                            <XAxis dataKey="year" unit=" yr" interval={0} type="number" domain={['dataMin', 'dataMax']} ticks={yearTicks} />
                             <YAxis
                                 tickFormatter={(value: number) => `$${(value / 1000).toFixed(0)}k`}
                                 width={80}
