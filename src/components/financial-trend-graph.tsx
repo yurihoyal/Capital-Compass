@@ -63,7 +63,7 @@ const FinancialTrendGraph = () => {
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" unit=" yr" />
+                            <XAxis dataKey="year" unit=" yr" interval={0} />
                             <YAxis
                                 tickFormatter={(value: number) => `$${(value / 1000).toFixed(0)}k`}
                                 width={80}

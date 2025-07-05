@@ -41,7 +41,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             )}
         </div>
         <p className="intro font-bold mt-2 border-t pt-2 flex justify-between items-center">
-            <span>Total Monthly Cost:</span>
+            <span>Total Monthly Cost: </span>
             <span className="font-semibold ml-2">${totalMonthly.toFixed(2)}</span>
         </p>
       </div>
@@ -83,7 +83,7 @@ const NewOwnershipProjection = () => {
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" unit=" yr" type="number" domain={['dataMin', 'dataMax']} />
+                    <XAxis dataKey="year" unit=" yr" type="number" domain={['dataMin', 'dataMax']} interval={0} />
                     <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} width={80} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend />
