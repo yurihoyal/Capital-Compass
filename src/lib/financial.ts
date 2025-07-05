@@ -70,10 +70,16 @@ export function generateCurrentPathProjection(
 ) {
     const projection = [];
     let cumulativeLoanPaid = 0;
-    let cumulativeCostWithOffset = specialAssessment;
+    let cumulativeCostWithOffset = 0; // Start at 0, assessment will be added in year 1
 
     for (let i = 1; i <= years; i++) {
-        const inflatedMfForYear = mf * Math.pow(1 + mfInflation / 100, i - 1);
+        let inflatedMfForYear = mf * Math.pow(1 + mfInflation / 100, i - 1);
+        
+        // Add special assessment to the first year's maintenance fees
+        if (i === 1) {
+            inflatedMfForYear += specialAssessment;
+        }
+
         const paymentsInYear = Math.min(i * 12, loanTermRemainingMonths) - Math.min((i - 1) * 12, loanTermRemainingMonths);
         const loanPaidForYear = monthlyLoanPayment * paymentsInYear;
         
