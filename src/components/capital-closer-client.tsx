@@ -20,7 +20,7 @@ export function CapitalCompassClient() {
         <main className="flex-1 overflow-hidden">
           <Tabs defaultValue="owner-profile" className="h-full flex flex-col">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-3 md:grid-cols-6">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-3 md:grid-cols-6 no-print">
                 <TabsTrigger value="owner-profile">1. Owner Profile</TabsTrigger>
                 <TabsTrigger value="upgrade-proposal">2. Restructure</TabsTrigger>
                 <TabsTrigger value="advantage">3. Advantage</TabsTrigger>

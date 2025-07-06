@@ -56,27 +56,6 @@ const RecapSheet = () => {
 
     return (
         <>
-            <style>
-                {`
-                @media print {
-                    body * {
-                        visibility: hidden;
-                    }
-                    .printable-area, .printable-area * {
-                        visibility: visible;
-                    }
-                    .printable-area {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                    }
-                    .no-print {
-                        display: none;
-                    }
-                }
-                `}
-            </style>
             <div className="flex justify-end mb-4 no-print">
                 <Button onClick={handlePrint}>
                     <Printer className="mr-2 h-4 w-4" />
