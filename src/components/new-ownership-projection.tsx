@@ -1,10 +1,10 @@
-// @ts-nocheck
 'use client';
 import React from 'react';
 import { useAppContext } from '@/contexts/app-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis, TooltipProps } from 'recharts';
 import { ChartContainer, type ChartConfig } from './ui/chart';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 const chartConfig = {
   maintenanceFees: {
@@ -18,9 +18,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 // Custom tooltip component to show monthly breakdown
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   const { state } = useAppContext();
-  const manualMonthlyLoan = state.upgradeProposal.newMonthlyLoanPayment || 0;
+  const manualMonthlyLoan = Number(state.upgradeProposal.newMonthlyLoanPayment) || 0;
   
   if (active && payload && payload.length) {
     const data = payload[0].payload;
@@ -28,6 +28,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     const isLoanActive = data.loanPayments > 0;
     const monthlyLoanToDisplay = isLoanActive ? manualMonthlyLoan : 0;
     const totalMonthly = monthlyMf + monthlyLoanToDisplay;
+
 
     return (
       <div className="p-3 bg-background/90 border rounded-lg shadow-lg text-sm backdrop-blur-sm">
