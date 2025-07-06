@@ -12,7 +12,7 @@ const chartConfig = {
     color: "hsl(var(--destructive))",
   },
   newCost: {
-    label: "Upgrade Proposal",
+    label: "Restructuring Proposal",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
@@ -72,13 +72,13 @@ const FinancialTrendGraph = () => {
                             <Tooltip content={<ChartTooltipContent indicator="dot" />} />
                             <Legend />
                             <Area type="monotone" dataKey="currentCost" name="What If I Do Nothing?" strokeWidth={2} stroke="var(--color-currentCost)" fillOpacity={1} fill="url(#colorCurrent)" />
-                            <Area type="monotone" dataKey="newCost" name="Upgrade Proposal" strokeWidth={2} stroke="var(--color-newCost)" fillOpacity={1} fill="url(#colorNew)" />
+                            <Area type="monotone" dataKey="newCost" name="Restructuring Proposal" strokeWidth={2} stroke="var(--color-newCost)" fillOpacity={1} fill="url(#colorNew)" />
                         </AreaChart>
                     </ChartContainer>
                 </div>
             </CardContent>
              <CardFooter className="text-center justify-center">
-                <p className="text-muted-foreground text-sm">Lower is better. The upgrade shows significant long-term savings.</p>
+                <p className="text-muted-foreground text-sm">Lower is better. The restructure shows significant long-term savings.</p>
             </CardFooter>
         </Card>
     );

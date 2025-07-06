@@ -32,6 +32,9 @@ const RecapSheet = () => {
         const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
         const creditCardAnnualOffset = rewardsCalculator.annualCredit || 0;
         const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
+        const principalOnlyMonthlyPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
+            ? (upgradeProposal.totalAmountFinanced / upgradeProposal.newLoanTerm)
+            : 0;
 
         return generateCostProjection(
             20, // Always calculate for 20 years for the recap sheet
@@ -42,7 +45,7 @@ const RecapSheet = () => {
             Number(ownerProfile.currentLoanTerm) || 0,
             (upgradeProposal.projectedMF || 0) * 12,
             upgradeProposal.newMfInflationRate,
-            Number(upgradeProposal.newMonthlyLoanPayment) || 0,
+            principalOnlyMonthlyPayment,
             upgradeProposal.newLoanTerm,
             totalAnnualOffset
         );
@@ -110,11 +113,11 @@ const RecapSheet = () => {
                             <h3 className="font-headline text-2xl text-center">Financial Summary</h3>
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="text-center">
-                                    <p className="text-muted-foreground">10-Year Savings with Upgrade</p>
+                                    <p className="text-muted-foreground">10-Year Savings with Restructure</p>
                                     <p className="text-4xl font-bold text-success">${costDifference10Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                 </div>
                                  <div className="text-center">
-                                    <p className="text-muted-foreground">20-Year Savings with Upgrade</p>
+                                    <p className="text-muted-foreground">20-Year Savings with Restructure</p>
                                     <p className="text-4xl font-bold text-success">${costDifference20Years.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                 </div>
                             </div>

@@ -67,11 +67,11 @@ const NewOwnershipProjection = () => {
   return (
     <Card className="h-full flex flex-col bg-success/10">
       <CardHeader>
-        <CardTitle className="font-headline text-xl">Annual Ownership Cost (Upgrade Path)</CardTitle>
+        <CardTitle className="font-headline text-xl">Annual Ownership Cost (Restructure Path)</CardTitle>
         <CardDescription>
             {usePointOffset 
-             ? "Projected annual costs with the Point Offset Strategy applied." 
-             : "This chart shows projected annual costs for the new upgrade."}
+             ? "Projected annual costs for the new restructure, with the Point Offset Strategy applied." 
+             : "This chart shows projected annual costs for the new restructure."}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between gap-4">
