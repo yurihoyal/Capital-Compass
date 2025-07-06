@@ -54,6 +54,7 @@ interface AppState {
 
 // This interface includes the calculated values
 interface FullAppState extends AppState {
+  isClubMember: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
   currentPathProjection: { year: number; maintenanceFees: number; loanPayments: number; monthlyMf: number; monthlyLoan: number; cumulativeCost: number; }[];
   currentPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
@@ -65,6 +66,7 @@ interface FullAppState extends AppState {
   annualVipValueGained: number;
   ownerAssistancePayout: number;
   totalAnnualPotential: number;
+  calculatedNewMonthlyLoanPayment: number;
 }
 
 const initialCoreState: AppState = {
@@ -83,9 +85,8 @@ const initialCoreState: AppState = {
   upgradeProposal: {
     newPointsAdded: 150000,
     convertedDeedsToPoints: 0,
-    newMonthlyLoanPayment: 350,
+    totalAmountFinanced: 20000,
     newLoanTerm: 120,
-    newLoanInterestRate: 7.5,
     projectedMF: 208,
     newMfInflationRate: 3,
   },
@@ -160,7 +161,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     
     // --- Points and Projections ---
     const isClubMember = ownerProfile.ownershipType === 'Capital Club Member';
-
     const currentPoints = isClubMember ? (ownerProfile.currentPoints || 0) : 0;
     
     let totalPointsAfterUpgrade;
@@ -174,12 +174,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const creditCardAnnualOffset = calculatedRewards.annualCredit || 0;
     const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
 
+    // --- Loan Calculation for New Proposal ---
+    const calculatedNewMonthlyLoanPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
+        ? (upgradeProposal.totalAmountFinanced / upgradeProposal.newLoanTerm)
+        : 0;
+
     const costProjectionData = generateCostProjection(
         projectionYears,
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
         Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0,
         (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
-        Number(upgradeProposal.newMonthlyLoanPayment) || 0, 
+        calculatedNewMonthlyLoanPayment,
         upgradeProposal.newLoanTerm,
         totalAnnualOffset
     );
@@ -196,7 +201,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (upgradeProposal.projectedMF || 0) * 12, 
         upgradeProposal.newMfInflationRate, 
         0, // no special assessment on new proposal
-        Number(upgradeProposal.newMonthlyLoanPayment) || 0, 
+        calculatedNewMonthlyLoanPayment,
         upgradeProposal.newLoanTerm,
         newPathAnnualOffset
     );
@@ -225,6 +230,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ownerAssistancePayout;
 
     return {
+      isClubMember,
       totalPointsAfterUpgrade,
       rewardsCalculator: calculatedRewards,
       travelServicesCalculator: calculatedTravelServices,
@@ -238,6 +244,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       annualVipValueGained,
       ownerAssistancePayout,
       totalAnnualPotential,
+      calculatedNewMonthlyLoanPayment,
     };
   }, [ownerProfile, upgradeProposal, rewardsCalculator, travelServicesCalculator, projectionYears, usePointOffset]);
 

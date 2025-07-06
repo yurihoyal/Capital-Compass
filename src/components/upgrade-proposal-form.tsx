@@ -10,10 +10,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Slider } from './ui/slider';
+import { Label } from './ui/label';
 
 const RestructureProposalForm = () => {
   const { state, dispatch } = useAppContext();
-  const isClubMember = state.ownerProfile.ownershipType === 'Capital Club Member';
+  const { isClubMember, calculatedNewMonthlyLoanPayment } = state;
 
   const form = useForm<UpgradeProposal>({
     resolver: zodResolver(UpgradeProposalSchema),
@@ -108,19 +109,19 @@ const RestructureProposalForm = () => {
                 <div className="space-y-4">
                     <FormField
                         control={form.control}
-                        name="newMonthlyLoanPayment"
+                        name="totalAmountFinanced"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>New Monthly Loan Payment ($)</FormLabel>
+                            <FormLabel>Total Amount Financed ($)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="350" {...field} />
+                                <Input type="number" placeholder="20000" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                     />
                     <FormField
-                        control={form.control}
+                        control={control}
                         name="newLoanTerm"
                         render={({ field }) => (
                             <FormItem>
@@ -141,19 +142,13 @@ const RestructureProposalForm = () => {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="newLoanInterestRate"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>New Loan Interest Rate (%)</FormLabel>
-                            <FormControl>
-                                <Input type="number" step="0.1" placeholder="7.5" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    <Card className="bg-muted/50 p-4 text-center">
+                        <Label className="text-muted-foreground">Projected Monthly Payment</Label>
+                        <p className="text-3xl font-bold">${(calculatedNewMonthlyLoanPayment || 0).toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Calculated from total amount financed over the selected term.
+                        </p>
+                    </Card>
                 </div>
             </div>
           </form>
