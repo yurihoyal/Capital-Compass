@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Slider } from './ui/slider';
 
-const UpgradeProposalForm = () => {
+const RestructureProposalForm = () => {
   const { state, dispatch } = useAppContext();
   const isClubMember = state.ownerProfile.ownershipType === 'Capital Club Member';
 
@@ -36,8 +36,8 @@ const UpgradeProposalForm = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Upgrade Proposal</CardTitle>
-        <CardDescription>Enter the details for the proposed ownership upgrade.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Restructure Proposal</CardTitle>
+        <CardDescription>Enter the details for the proposed ownership restructure.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -163,4 +163,4 @@ const UpgradeProposalForm = () => {
   );
 };
 
-export default UpgradeProposalForm;
+export default RestructureProposalForm;
