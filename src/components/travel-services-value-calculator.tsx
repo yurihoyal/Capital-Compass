@@ -52,7 +52,7 @@ const TravelServicesValueCalculator = () => {
                                 <FormItem>
                                     <FormLabel>Points for Travel Services Annually</FormLabel>
                                     <FormControl>
-                                        <Input type="number" placeholder="e.g., 50000" {...field} />
+                                        <Input type="number" placeholder="e.g., 200000" {...field} />
                                     </FormControl>
                                 </FormItem>
                             )}

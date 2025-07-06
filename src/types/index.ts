@@ -30,7 +30,7 @@ export const UpgradeProposalSchema = z.object({
 export type UpgradeProposal = z.infer<typeof UpgradeProposalSchema>;
 
 export const RewardsCalculatorSchema = z.object({
-  monthlySpend: z.coerce.number().min(0).optional().default(0),
+  monthlySpend: z.coerce.number().min(0).optional().default(2500),
   // Calculated fields
   totalRewards: z.coerce.number().min(0).optional(),
   annualCredit: z.coerce.number().min(0).optional(),
@@ -39,7 +39,7 @@ export const RewardsCalculatorSchema = z.object({
 export type RewardsCalculatorData = z.infer<typeof RewardsCalculatorSchema>;
 
 export const TravelServicesCalculatorSchema = z.object({
-  pointsForTravel: z.coerce.number().min(0).optional().default(0),
+  pointsForTravel: z.coerce.number().min(0).optional().default(200000),
   // Calculated fields
   cashValueOfPoints: z.coerce.number().min(0).optional(),
 });

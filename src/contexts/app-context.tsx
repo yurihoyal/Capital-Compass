@@ -93,7 +93,7 @@ const initialCoreState: AppState = {
       monthlySpend: 2500,
   },
   travelServicesCalculator: {
-      pointsForTravel: 0,
+      pointsForTravel: 200000,
   },
   projectionYears: 10,
   usePointOffset: false,
