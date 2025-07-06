@@ -90,7 +90,7 @@ const initialCoreState: AppState = {
     newMfInflationRate: 3,
   },
   rewardsCalculator: {
-      monthlySpend: 1500,
+      monthlySpend: 2500,
   },
   travelServicesCalculator: {
       pointsForTravel: 0,
