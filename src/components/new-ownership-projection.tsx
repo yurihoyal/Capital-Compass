@@ -19,11 +19,15 @@ const chartConfig = {
 
 // Custom tooltip component to show monthly breakdown
 const CustomTooltip = ({ active, payload, label }: any) => {
+  const { state } = useAppContext();
+  const manualMonthlyLoan = state.upgradeProposal.newMonthlyLoanPayment || 0;
+  
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const monthlyMf = Number(data.monthlyMf || 0);
-    const monthlyLoan = Number(data.monthlyLoan || 0);
-    const totalMonthly = monthlyMf + monthlyLoan;
+    const isLoanActive = data.loanPayments > 0;
+    const monthlyLoanToDisplay = isLoanActive ? manualMonthlyLoan : 0;
+    const totalMonthly = monthlyMf + monthlyLoanToDisplay;
 
     return (
       <div className="p-3 bg-background/90 border rounded-lg shadow-lg text-sm backdrop-blur-sm">
@@ -33,10 +37,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 <span>Monthly MF:</span>
                 <span className="font-semibold ml-2">${monthlyMf.toFixed(2)}</span>
             </p>
-            {monthlyLoan > 0 && (
+            {monthlyLoanToDisplay > 0 && (
                 <p style={{ color: 'hsl(var(--chart-1))' }} className="flex justify-between items-center">
                     <span>Monthly Loan:</span>
-                    <span className="font-semibold ml-2">${monthlyLoan.toFixed(2)}</span>
+                    <span className="font-semibold ml-2">${monthlyLoanToDisplay.toFixed(2)}</span>
                 </p>
             )}
         </div>

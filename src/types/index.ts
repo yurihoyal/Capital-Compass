@@ -22,6 +22,7 @@ export const UpgradeProposalSchema = z.object({
   newPointsAdded: z.coerce.number().min(0),
   convertedDeedsToPoints: z.coerce.number().min(0),
   totalAmountFinanced: z.coerce.number().min(0),
+  newMonthlyLoanPayment: z.coerce.number().min(0).optional(),
   newLoanTerm: z.coerce.number().min(0),
   projectedMF: z.coerce.number().min(0),
   newMfInflationRate: z.coerce.number().min(1).max(30),

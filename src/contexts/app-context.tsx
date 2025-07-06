@@ -66,7 +66,6 @@ interface FullAppState extends AppState {
   annualVipValueGained: number;
   ownerAssistancePayout: number;
   totalAnnualPotential: number;
-  calculatedNewMonthlyLoanPayment: number;
 }
 
 const initialCoreState: AppState = {
@@ -86,6 +85,7 @@ const initialCoreState: AppState = {
     newPointsAdded: 150000,
     convertedDeedsToPoints: 0,
     totalAmountFinanced: 20000,
+    newMonthlyLoanPayment: 250,
     newLoanTerm: 120,
     projectedMF: 208,
     newMfInflationRate: 3,
@@ -174,8 +174,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const creditCardAnnualOffset = calculatedRewards.annualCredit || 0;
     const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
 
-    // --- Loan Calculation for New Proposal ---
-    const calculatedNewMonthlyLoanPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
+    // --- Loan Calculation for Projection (based on principal only) ---
+    const principalOnlyMonthlyPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
         ? (upgradeProposal.totalAmountFinanced / upgradeProposal.newLoanTerm)
         : 0;
 
@@ -184,7 +184,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
         Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0,
         (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
-        calculatedNewMonthlyLoanPayment,
+        principalOnlyMonthlyPayment,
         upgradeProposal.newLoanTerm,
         totalAnnualOffset
     );
@@ -201,7 +201,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (upgradeProposal.projectedMF || 0) * 12, 
         upgradeProposal.newMfInflationRate, 
         0, // no special assessment on new proposal
-        calculatedNewMonthlyLoanPayment,
+        principalOnlyMonthlyPayment,
         upgradeProposal.newLoanTerm,
         newPathAnnualOffset
     );
@@ -244,7 +244,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       annualVipValueGained,
       ownerAssistancePayout,
       totalAnnualPotential,
-      calculatedNewMonthlyLoanPayment,
     };
   }, [ownerProfile, upgradeProposal, rewardsCalculator, travelServicesCalculator, projectionYears, usePointOffset]);
 

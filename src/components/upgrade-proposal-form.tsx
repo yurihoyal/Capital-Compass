@@ -10,11 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Slider } from './ui/slider';
-import { Label } from './ui/label';
 
 const RestructureProposalForm = () => {
   const { state, dispatch } = useAppContext();
-  const { isClubMember, calculatedNewMonthlyLoanPayment } = state;
+  const { isClubMember } = state;
 
   const form = useForm<UpgradeProposal>({
     resolver: zodResolver(UpgradeProposalSchema),
@@ -121,6 +120,19 @@ const RestructureProposalForm = () => {
                         )}
                     />
                     <FormField
+                        control={form.control}
+                        name="newMonthlyLoanPayment"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>New Monthly Loan Payment ($)</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="250" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
                         control={control}
                         name="newLoanTerm"
                         render={({ field }) => (
@@ -142,13 +154,6 @@ const RestructureProposalForm = () => {
                             </FormItem>
                         )}
                     />
-                    <Card className="bg-muted/50 p-4 text-center">
-                        <Label className="text-muted-foreground">Projected Monthly Payment</Label>
-                        <p className="text-3xl font-bold">${(calculatedNewMonthlyLoanPayment || 0).toFixed(2)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Calculated from total amount financed over the selected term.
-                        </p>
-                    </Card>
                 </div>
             </div>
           </form>
