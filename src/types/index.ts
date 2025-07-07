@@ -30,7 +30,7 @@ export const UpgradeProposalSchema = z.object({
 export type UpgradeProposal = z.infer<typeof UpgradeProposalSchema>;
 
 export const RewardsCalculatorSchema = z.object({
-  monthlySpend: z.coerce.number().min(0).optional().default(2000),
+  monthlySpend: z.coerce.number().min(0).optional().default(2500),
   // Calculated fields
   totalRewards: z.coerce.number().min(0).optional(),
   annualCredit: z.coerce.number().min(0).optional(),

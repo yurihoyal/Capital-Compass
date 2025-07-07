@@ -77,7 +77,7 @@ const RewardsSavingsCalculator = () => {
                                     <FormItem>
                                         <FormLabel>Estimated Monthly Spend ($)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="2000" {...field} />
+                                            <Input type="number" placeholder="2500" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
