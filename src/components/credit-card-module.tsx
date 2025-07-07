@@ -34,6 +34,7 @@ const RewardsSavingsCalculator = () => {
 
     const handleFormChange = () => {
         dispatch({ type: 'UPDATE_REWARDS_CALCULATOR', payload: getValues() });
+        dispatch({ type: 'SET_REWARDS_SPEND_MANUALLY_SET', payload: true });
     };
 
     const annualMaintenanceFee = (ownerProfile.maintenanceFee || 0) * 12;
@@ -68,7 +69,7 @@ const RewardsSavingsCalculator = () => {
             <CardContent className="flex-1 flex flex-col justify-between">
                 <div>
                     <Form {...form}>
-                        <form className="space-y-4" onChange={handleFormChange}>
+                        <form className="space-y-4" onBlur={handleFormChange}>
                             <FormField
                                 control={form.control}
                                 name="monthlySpend"
@@ -86,9 +87,9 @@ const RewardsSavingsCalculator = () => {
                     
                     <div className="grid grid-cols-1 gap-4 text-center mt-6">
                         <Card className="bg-muted/50 p-3">
-                            <p className="text-sm font-medium text-muted-foreground">Total Annual Rewards</p>
-                            <p className="text-2xl font-bold">{formatNumber(rewardsCalculator.totalRewards)}</p>
-                            <p className="text-xs text-muted-foreground">Based on an average of 3 points per dollar spent</p>
+                            <p className="text-sm font-medium text-muted-foreground">Total Redeemable Points</p>
+                            <p className="text-2xl font-bold">{formatNumber(rewardsCalculator.totalRewards || 0)} pts</p>
+                            <p className="text-xs text-muted-foreground">Includes 6 pts/$ avg. & 5% redemption bonus</p>
                         </Card>
                     </div>
 

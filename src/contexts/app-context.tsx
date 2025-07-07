@@ -184,11 +184,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const calculatedState = useMemo(() => {
     // --- Rewards Calculation ---
     const { monthlySpend } = rewardsCalculator;
-    // New logic: 6 points per dollar
-    const totalRewards = (monthlySpend || 0) * 12 * 6; 
-    const annualCredit = totalRewards * 0.05;
+    const annualSpend = (monthlySpend || 0) * 12;
+    const annualPoints = annualSpend * 6;
+    const redemptionBonusPoints = annualPoints * 0.05;
+    const totalRedeemablePoints = annualPoints + redemptionBonusPoints;
+    const annualCredit = totalRedeemablePoints * 0.01;
     const monthlyCredit = annualCredit / 12;
-    const calculatedRewards: RewardsCalculatorData = { ...rewardsCalculator, totalRewards, annualCredit, monthlyCredit };
+    const calculatedRewards: RewardsCalculatorData = { 
+        ...rewardsCalculator, 
+        totalRewards: totalRedeemablePoints, 
+        annualCredit, 
+        monthlyCredit 
+    };
 
     // --- Travel Services Calculation ---
     const { pointsForTravel } = travelServicesCalculator;
