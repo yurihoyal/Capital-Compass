@@ -100,10 +100,10 @@ const NewOwnershipProjection = () => {
         </div>
         <div>
             <h4 className="font-semibold text-center mb-2">Total Ownership Cost Over {projectionYears} Years</h4>
-            <p className="text-4xl font-bold text-success text-center mb-2">{formatCurrency(newPathSummary.totalCost)}</p>
+            <p className="text-4xl font-bold text-success text-center mb-2">{formatCurrency(newPathSummary?.totalCost || 0)}</p>
             <div className="text-sm text-muted-foreground text-center grid grid-cols-2 gap-2">
-                <span>Total MFs: <span className="font-medium text-foreground">{formatCurrency(newPathSummary.totalMf)}</span></span>
-                <span>Total Loan: <span className="font-medium text-foreground">{formatCurrency(newPathSummary.totalLoanPaid)}</span></span>
+                <span>Total MFs: <span className="font-medium text-foreground">{formatCurrency(newPathSummary?.totalMf || 0)}</span></span>
+                <span>Total Loan: <span className="font-medium text-foreground">{formatCurrency(newPathSummary?.totalLoanPaid || 0)}</span></span>
             </div>
         </div>
         <div className="mt-4 pt-4 border-t">

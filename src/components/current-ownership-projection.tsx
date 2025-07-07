@@ -89,7 +89,7 @@ const CurrentOwnershipProjection = () => {
         </div>
         <div>
             <h4 className="font-semibold text-center mb-2">Total Ownership Cost Over {projectionYears} Years</h4>
-            <p className="text-4xl font-bold text-destructive text-center mb-2">{formatCurrency(currentPathSummary.totalCost)}</p>
+            <p className="text-4xl font-bold text-destructive text-center mb-2">{formatCurrency(currentPathSummary?.totalCost || 0)}</p>
         </div>
       </CardContent>
     </Card>

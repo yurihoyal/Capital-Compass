@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useMemo, useState, useEffect } from 'react';
 import { OwnerProfile, UpgradeProposal, RewardsCalculatorData, TravelServicesCalculatorData } from '@/types';
-import { generateCostProjection } from '@/lib/financial';
+import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
 
 const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
@@ -57,10 +57,17 @@ interface AppState {
   rewardsSpendHasBeenManuallySet: boolean;
 }
 
+type ProjectionData = { year: number, maintenanceFees: number, loanPayments: number, monthlyMf: number, monthlyLoan: number, cumulativeCost: number };
+type SummaryData = { totalCost: number, totalMf: number, totalLoanPaid: number };
+
 // This interface includes the calculated values
 interface FullAppState extends AppState {
   isClubMember: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
+  currentPathProjection: ProjectionData[];
+  currentPathSummary: SummaryData;
+  newPathProjection: ProjectionData[];
+  newPathSummary: SummaryData;
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
   projectedVIPLevel: string;
@@ -236,12 +243,36 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         annualNewCostOffset
     );
 
+     const { projection: currentPathProjection, summary: currentPathSummary } = generateCurrentPathProjection(
+        projectionYears,
+        (ownerProfile.maintenanceFee || 0) * 12,
+        ownerProfile.mfInflationRate,
+        ownerProfile.specialAssessment || 0,
+        Number(ownerProfile.currentMonthlyLoanPayment) || 0,
+        Number(ownerProfile.currentLoanTerm) || 0,
+        0 // No offset for current path
+    );
+
+    const { projection: newPathProjection, summary: newPathSummary } = generateCurrentPathProjection(
+        projectionYears,
+        (upgradeProposal.projectedMF || 0) * 12,
+        upgradeProposal.newMfInflationRate,
+        0, // No special assessment for new path
+        principalOnlyMonthlyPayment,
+        upgradeProposal.newLoanTerm,
+        annualNewCostOffset
+    );
+
     return {
       isClubMember,
       totalPointsAfterUpgrade,
       rewardsCalculator: calculatedRewards,
       travelServicesCalculator: calculatedTravelServices,
       costProjectionData,
+      currentPathProjection,
+      currentPathSummary,
+      newPathProjection,
+      newPathSummary,
       currentVIPLevel,
       projectedVIPLevel,
       annualVipValueGained,
