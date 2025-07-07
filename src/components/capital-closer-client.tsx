@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from './header';
 import OwnerProfileForm from './owner-profile-form';
 import RestructureProposalForm from './upgrade-proposal-form';
-import AdvantageCalculator from './advantage-calculator';
+import AdvantageDashboard from './advantage-calculator';
 import ComparisonView from './comparison-view';
 import RecapSheet from './recap-sheet';
 import AiAssistant from './ai-assistant';
@@ -33,7 +33,7 @@ export function CapitalCompassClient() {
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                 <TabsContent value="owner-profile"><OwnerProfileForm /></TabsContent>
                 <TabsContent value="upgrade-proposal"><RestructureProposalForm /></TabsContent>
-                <TabsContent value="advantage"><AdvantageCalculator /></TabsContent>
+                <TabsContent value="advantage"><AdvantageDashboard /></TabsContent>
                 <TabsContent value="comparison"><ComparisonView /></TabsContent>
                 <TabsContent value="recap"><RecapSheet /></TabsContent>
                 <TabsContent value="ai-assistant"><AiAssistant /></TabsContent>

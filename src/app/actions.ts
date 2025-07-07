@@ -2,6 +2,7 @@
 
 import { calculateVipTier, CalculateVipTierOutput } from "@/ai/flows/vip-tier-calculator";
 import { travelAssistant, TravelAssistantOutput } from "@/ai/flows/travel-assistant";
+import { getAdvantageSummary as getAdvantageSummaryFlow, AdvantageSummaryInput, AdvantageSummaryOutput } from "@/ai/flows/advantage-summary-flow";
 
 export async function getVipTier(totalPoints: number): Promise<CalculateVipTierOutput> {
     try {
@@ -19,5 +20,10 @@ export async function getVipTier(totalPoints: number): Promise<CalculateVipTierO
 
 export async function getTravelAssistantResponse(query: string): Promise<TravelAssistantOutput> {
     const result = await travelAssistant({ query });
+    return result;
+}
+
+export async function getAdvantageSummary(input: AdvantageSummaryInput): Promise<AdvantageSummaryOutput> {
+    const result = await getAdvantageSummaryFlow(input);
     return result;
 }

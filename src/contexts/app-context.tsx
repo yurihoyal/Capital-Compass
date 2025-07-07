@@ -1,8 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useState, useEffect } from 'react';
 import { OwnerProfile, UpgradeProposal, RewardsCalculatorData, TravelServicesCalculatorData } from '@/types';
-import { generateCostProjection, generateCurrentPathProjection } from '@/lib/financial';
+import { generateCostProjection } from '@/lib/financial';
 
 const POINT_VALUE_FOR_MF_OFFSET = 0.01;
 
@@ -50,16 +50,17 @@ interface AppState {
   travelServicesCalculator: TravelServicesCalculatorData;
   projectionYears: 10 | 15 | 20;
   usePointOffset: boolean;
+  useRewardsOffset: boolean;
+  useTravelOffset: boolean;
+  useOwnerAssistanceOffset: boolean;
+  showAiSummary: boolean;
+  rewardsSpendHasBeenManuallySet: boolean;
 }
 
 // This interface includes the calculated values
 interface FullAppState extends AppState {
   isClubMember: boolean;
   costProjectionData: { year: number, currentCost: number, newCost: number }[];
-  currentPathProjection: { year: number; maintenanceFees: number; loanPayments: number; monthlyMf: number; monthlyLoan: number; cumulativeCost: number; }[];
-  currentPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
-  newPathProjection: { year: number; maintenanceFees: number; loanPayments: number; monthlyMf: number; monthlyLoan: number; cumulativeCost: number; }[];
-  newPathSummary: { totalCost: number; totalMf: number; totalLoanPaid: number; };
   totalPointsAfterUpgrade: number;
   currentVIPLevel: string;
   projectedVIPLevel: string;
@@ -97,7 +98,12 @@ const initialCoreState: AppState = {
       pointsForTravel: 200000,
   },
   projectionYears: 10,
-  usePointOffset: false,
+  usePointOffset: false, // Legacy, can be removed if not used elsewhere
+  useRewardsOffset: true,
+  useTravelOffset: true,
+  useOwnerAssistanceOffset: true,
+  showAiSummary: true,
+  rewardsSpendHasBeenManuallySet: false,
 };
 
 
@@ -108,7 +114,11 @@ type Action =
   | { type: 'UPDATE_TRAVEL_SERVICES_CALCULATOR'; payload: Partial<TravelServicesCalculatorData> }
   | { type: 'RESET_STATE' }
   | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 15 | 20 }
-  | { type: 'SET_USE_POINT_OFFSET', payload: boolean };
+  | { type: 'SET_USE_REWARDS_OFFSET', payload: boolean }
+  | { type: 'SET_USE_TRAVEL_OFFSET', payload: boolean }
+  | { type: 'SET_USE_OWNER_ASSISTANCE_OFFSET', payload: boolean }
+  | { type: 'SET_SHOW_AI_SUMMARY', payload: boolean }
+  | { type: 'SET_REWARDS_SPEND_MANUALLY_SET', payload: boolean };
 
 
 const AppContext = createContext<{ state: FullAppState; dispatch: React.Dispatch<Action> } | undefined>(undefined);
@@ -118,17 +128,33 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_OWNER_PROFILE':
       return { ...state, ownerProfile: { ...state.ownerProfile, ...action.payload } };
     case 'UPDATE_UPGRADE_PROPOSAL':
-      return { ...state, upgradeProposal: { ...state.upgradeProposal, ...action.payload } };
+       // When proposal changes, if spend hasn't been manually set, allow it to be auto-updated.
+       const newMonthlyTotal = (action.payload.projectedMF || state.upgradeProposal.projectedMF || 0) + (action.payload.newMonthlyLoanPayment || state.upgradeProposal.newMonthlyLoanPayment || 0);
+       return { 
+           ...state, 
+           upgradeProposal: { ...state.upgradeProposal, ...action.payload },
+           rewardsCalculator: state.rewardsSpendHasBeenManuallySet 
+               ? state.rewardsCalculator 
+               : { ...state.rewardsCalculator, monthlySpend: newMonthlyTotal }
+       };
     case 'UPDATE_REWARDS_CALCULATOR':
         return { ...state, rewardsCalculator: { ...state.rewardsCalculator, ...action.payload } };
+    case 'SET_REWARDS_SPEND_MANUALLY_SET':
+        return { ...state, rewardsSpendHasBeenManuallySet: action.payload };
     case 'UPDATE_TRAVEL_SERVICES_CALCULATOR':
         return { ...state, travelServicesCalculator: { ...state.travelServicesCalculator, ...action.payload } };
     case 'RESET_STATE':
         return { ...initialCoreState };
     case 'SET_PROJECTION_YEARS':
         return { ...state, projectionYears: action.payload };
-    case 'SET_USE_POINT_OFFSET':
-        return { ...state, usePointOffset: action.payload };
+    case 'SET_USE_REWARDS_OFFSET':
+        return { ...state, useRewardsOffset: action.payload };
+    case 'SET_USE_TRAVEL_OFFSET':
+        return { ...state, useTravelOffset: action.payload };
+    case 'SET_USE_OWNER_ASSISTANCE_OFFSET':
+        return { ...state, useOwnerAssistanceOffset: action.payload };
+    case 'SET_SHOW_AI_SUMMARY':
+        return { ...state, showAiSummary: action.payload };
     default:
       return state;
   }
@@ -143,13 +169,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     rewardsCalculator,
     travelServicesCalculator,
     projectionYears,
-    usePointOffset
+    useRewardsOffset,
+    useTravelOffset,
+    useOwnerAssistanceOffset,
   } = state;
 
   const calculatedState = useMemo(() => {
     // --- Rewards Calculation ---
     const { monthlySpend } = rewardsCalculator;
-    const totalRewards = (monthlySpend || 0) * 12 * 3;
+    // New logic: 6 points per dollar
+    const totalRewards = (monthlySpend || 0) * 12 * 6; 
     const annualCredit = totalRewards * 0.05;
     const monthlyCredit = annualCredit / 12;
     const calculatedRewards: RewardsCalculatorData = { ...rewardsCalculator, totalRewards, annualCredit, monthlyCredit };
@@ -159,7 +188,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const cashValueOfPoints = (pointsForTravel || 0) * 0.02;
     const calculatedTravelServices: TravelServicesCalculatorData = { ...travelServicesCalculator, cashValueOfPoints };
     
-    // --- Points and Projections ---
+    // --- Points ---
     const isClubMember = ownerProfile.ownershipType === 'Capital Club Member';
     const currentPoints = isClubMember ? (ownerProfile.currentPoints || 0) : 0;
     
@@ -170,11 +199,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         totalPointsAfterUpgrade = Number(ownerProfile.deedPointValue || 0) + Number(upgradeProposal.newPointsAdded || 0);
     }
     
-    const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
-    const creditCardAnnualOffset = calculatedRewards.annualCredit || 0;
-    const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
+    // --- VIP & Assistance Payout ---
+    const currentVIPLevel = isClubMember ? getVipTierFromPoints(currentPoints) : 'Deeded';
+    const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
+    const eligiblePointsForAssistance = (totalPointsAfterUpgrade || 0) * 0.5;
+    const assistanceRate = ownerAssistanceRateMap[projectedVIPLevel] || defaultOwnerAssistanceRate;
+    const ownerAssistancePayout = projectedVIPLevel === 'Deeded' ? 0 : eligiblePointsForAssistance * assistanceRate;
 
-    // --- Loan Calculation for Projection (based on principal only) ---
+    // --- VIP Value Gained ---
+    const currentPerks = tierValueMap[currentVIPLevel] ?? tierValueMap.Deeded;
+    const newPerks = tierValueMap[projectedVIPLevel] ?? tierValueMap.Deeded;
+    const getPerkValue = (perks: PerkValues) => Object.values(perks).reduce((sum, val) => sum + val, 0);
+    const currentValue = getPerkValue(currentPerks);
+    const newValue = getPerkValue(newPerks);
+    const annualVipValueGained = Math.max(0, newValue - currentValue);
+    const totalAnnualPotential = annualVipValueGained + (calculatedRewards.annualCredit || 0) + (calculatedTravelServices.cashValueOfPoints || 0) + ownerAssistancePayout;
+
+    // --- Cost Projections ---
+    // Calculate total annual offset based on toggles
+    let annualNewCostOffset = 0;
+    if (useRewardsOffset) annualNewCostOffset += calculatedRewards.annualCredit || 0;
+    if (useTravelOffset) annualNewCostOffset += calculatedTravelServices.cashValueOfPoints || 0;
+    if (useOwnerAssistanceOffset) annualNewCostOffset += ownerAssistancePayout || 0;
+
     const principalOnlyMonthlyPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
         ? (upgradeProposal.totalAmountFinanced / upgradeProposal.newLoanTerm)
         : 0;
@@ -186,48 +233,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
         principalOnlyMonthlyPayment,
         upgradeProposal.newLoanTerm,
-        totalAnnualOffset
+        annualNewCostOffset
     );
-
-    const currentPathData = generateCurrentPathProjection(
-        projectionYears,
-        (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
-        Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0
-    );
-
-    const newPathAnnualOffset = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
-    const newPathData = generateCurrentPathProjection(
-        projectionYears,
-        (upgradeProposal.projectedMF || 0) * 12, 
-        upgradeProposal.newMfInflationRate, 
-        0, // no special assessment on new proposal
-        principalOnlyMonthlyPayment,
-        upgradeProposal.newLoanTerm,
-        newPathAnnualOffset
-    );
-
-    const currentVIPLevel = isClubMember ? getVipTierFromPoints(currentPoints) : 'Deeded';
-    const projectedVIPLevel = getVipTierFromPoints(totalPointsAfterUpgrade);
-
-    // --- Calculate Annual VIP Value Gained ---
-    const currentPerks = tierValueMap[currentVIPLevel] ?? tierValueMap.Deeded;
-    const newPerks = tierValueMap[projectedVIPLevel] ?? tierValueMap.Deeded;
-    const getPerkValue = (perks: PerkValues) => Object.values(perks).reduce((sum, val) => sum + val, 0);
-    const currentValue = getPerkValue(currentPerks);
-    const newValue = getPerkValue(newPerks);
-    const annualVipValueGained = Math.max(0, newValue - currentValue);
-
-    // --- Calculate Owner Assistance Payout ---
-    const eligiblePoints = (totalPointsAfterUpgrade || 0) * 0.5;
-    const rate = ownerAssistanceRateMap[projectedVIPLevel] || defaultOwnerAssistanceRate;
-    const ownerAssistancePayout = projectedVIPLevel === 'Deeded' ? 0 : eligiblePoints * rate;
-
-    // --- Calculate Total Annual Potential ---
-    const totalAnnualPotential = 
-        annualVipValueGained + 
-        (calculatedRewards.annualCredit || 0) + 
-        (calculatedTravelServices.cashValueOfPoints || 0) + 
-        ownerAssistancePayout;
 
     return {
       isClubMember,
@@ -235,17 +242,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       rewardsCalculator: calculatedRewards,
       travelServicesCalculator: calculatedTravelServices,
       costProjectionData,
-      currentPathProjection: currentPathData.projection,
-      currentPathSummary: currentPathData.summary,
-      newPathProjection: newPathData.projection,
-      newPathSummary: newPathData.summary,
       currentVIPLevel,
       projectedVIPLevel,
       annualVipValueGained,
       ownerAssistancePayout,
       totalAnnualPotential,
     };
-  }, [ownerProfile, upgradeProposal, rewardsCalculator, travelServicesCalculator, projectionYears, usePointOffset]);
+  }, [ownerProfile, upgradeProposal, rewardsCalculator, travelServicesCalculator, projectionYears, useRewardsOffset, useTravelOffset, useOwnerAssistanceOffset]);
 
 
   const fullState: FullAppState = {
