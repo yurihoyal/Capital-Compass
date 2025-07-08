@@ -83,8 +83,17 @@ const AdvantageIllustrator = () => {
     const { 
         projectionYears, 
         costProjectionData,
-        useSavingsAdvantagePlan
+        useSavingsAdvantagePlan,
+        rewardsCalculator,
+        travelServicesCalculator,
+        ownerAssistancePayout,
     } = state;
+
+    const totalAnnualSavings = useMemo(() => {
+        return (rewardsCalculator.annualCredit || 0) + 
+               (travelServicesCalculator.cashValueOfPoints || 0) + 
+               (ownerAssistancePayout || 0);
+    }, [rewardsCalculator, travelServicesCalculator, ownerAssistancePayout]);
 
     const chartData = useMemo(() => {
         const finalYearData = costProjectionData[costProjectionData.length - 1];
@@ -127,22 +136,29 @@ const AdvantageIllustrator = () => {
 
                     {/* Toggles & Gap */}
                     <div className="lg:col-span-2 space-y-4">
-                        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <Label htmlFor="savings-advantage-toggle" className="text-base font-normal">Apply Your Savings Advantage Plan</Label>
-                             <TooltipProvider>
-                                <UiTooltip>
-                                    <TooltipTrigger asChild>
-                                        <Switch 
-                                            id="savings-advantage-toggle" 
-                                            checked={useSavingsAdvantagePlan}
-                                            onCheckedChange={(checked) => dispatch({ type: 'SET_USE_SAVINGS_ADVANTAGE_PLAN', payload: checked })}
-                                        />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Toggle to see the impact of all potential savings.</p>
-                                    </TooltipContent>
-                                </UiTooltip>
-                            </TooltipProvider>
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="savings-advantage-toggle" className="text-base font-semibold">Apply Your Savings Advantage Plan</Label>
+                                 <TooltipProvider>
+                                    <UiTooltip>
+                                        <TooltipTrigger asChild>
+                                            <Switch 
+                                                id="savings-advantage-toggle" 
+                                                checked={useSavingsAdvantagePlan}
+                                                onCheckedChange={(checked) => dispatch({ type: 'SET_USE_SAVINGS_ADVANTAGE_PLAN', payload: checked })}
+                                            />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Toggle to see the impact of all potential savings.</p>
+                                        </TooltipContent>
+                                    </UiTooltip>
+                                </TooltipProvider>
+                            </div>
+                            {totalAnnualSavings > 0 && (
+                                <p className="text-sm text-muted-foreground mt-2">
+                                    Includes <span className="font-bold text-success">{formatCurrency(totalAnnualSavings)}</span> in potential annual savings.
+                                </p>
+                            )}
                         </div>
                         
                         <div className={`mt-6 p-4 rounded-lg text-center transition-all duration-300 ${regretGap > 0 ? 'bg-success/10 border-success/20' : 'bg-destructive/10 border-destructive/20'} border`}>
