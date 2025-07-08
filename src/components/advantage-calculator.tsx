@@ -83,10 +83,7 @@ const AdvantageIllustrator = () => {
     const { 
         projectionYears, 
         costProjectionData,
-        useSavingsAdvantagePlan,
-        rewardsCalculator,
-        travelServicesCalculator,
-        ownerAssistancePayout
+        useSavingsAdvantagePlan
     } = state;
 
     const chartData = useMemo(() => {
@@ -104,8 +101,6 @@ const AdvantageIllustrator = () => {
         if (!finalYearData) return 0;
         return finalYearData.currentCost - finalYearData.newCost;
     }, [costProjectionData]);
-
-    const totalAnnualSavings = (rewardsCalculator.annualCredit || 0) + (travelServicesCalculator.cashValueOfPoints || 0) + ownerAssistancePayout;
 
     return (
         <Card className="shadow-lg">
@@ -150,25 +145,6 @@ const AdvantageIllustrator = () => {
                             </TooltipProvider>
                         </div>
                         
-                        <div className="space-y-2 text-sm text-muted-foreground pl-3 border-l-2 ml-3">
-                             <p className="flex justify-between items-center">
-                                <span>Rewards Credit Card:</span> 
-                                <span className="font-medium text-foreground">{formatCurrency(rewardsCalculator.annualCredit || 0)}</span>
-                            </p>
-                            <p className="flex justify-between items-center">
-                                <span>Travel Services:</span> 
-                                <span className="font-medium text-foreground">{formatCurrency(travelServicesCalculator.cashValueOfPoints || 0)}</span>
-                            </p>
-                            <p className="flex justify-between items-center">
-                                <span>Owner Assistance:</span> 
-                                <span className="font-medium text-foreground">{formatCurrency(ownerAssistancePayout)}</span>
-                            </p>
-                            <p className="flex justify-between items-center font-bold text-base border-t pt-2 mt-2">
-                                <span>Total Annual Savings:</span>
-                                <span className="text-success">{formatCurrency(totalAnnualSavings)}</span>
-                            </p>
-                        </div>
-
                         <div className={`mt-6 p-4 rounded-lg text-center transition-all duration-300 ${regretGap > 0 ? 'bg-success/10 border-success/20' : 'bg-destructive/10 border-destructive/20'} border`}>
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                                 {regretGap > 0 ? 'Total Avoidable Cost' : 'Investment Higher Than Current Path'}
