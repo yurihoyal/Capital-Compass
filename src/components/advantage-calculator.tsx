@@ -14,6 +14,7 @@ import { Skeleton } from './ui/skeleton';
 import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import CurrentOwnershipProjection from './current-ownership-projection';
 import NewOwnershipProjection from './new-ownership-projection';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (value: number) => (value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
@@ -106,18 +107,19 @@ const AdvantageIllustrator = () => {
     return (
         <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="font-headline text-3xl">Advantage Illustrator</CardTitle>
-                <CardDescription className="text-lg">Visually compare the long-term costs and discover the value of restructuring.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="mb-6 p-4 bg-muted/50 rounded-lg">
+                 <div className={cn(
+                    "mb-4 p-4 rounded-lg border transition-colors",
+                    useSavingsAdvantagePlan
+                        ? "bg-success/10 border-success/20"
+                        : "bg-muted/50 border-transparent"
+                )}>
                     <div className="flex items-center justify-between">
                         <Label htmlFor="savings-advantage-toggle" className="text-base font-semibold">Apply Your Savings Advantage Plan</Label>
-                            <TooltipProvider>
+                        <TooltipProvider>
                             <UiTooltip>
                                 <TooltipTrigger asChild>
-                                    <Switch 
-                                        id="savings-advantage-toggle" 
+                                    <Switch
+                                        id="savings-advantage-toggle"
                                         checked={useSavingsAdvantagePlan}
                                         onCheckedChange={(checked) => dispatch({ type: 'SET_USE_SAVINGS_ADVANTAGE_PLAN', payload: checked })}
                                     />
@@ -128,13 +130,16 @@ const AdvantageIllustrator = () => {
                             </UiTooltip>
                         </TooltipProvider>
                     </div>
-                    {totalAnnualPotential > 0 && (
+                    {useSavingsAdvantagePlan && totalAnnualPotential > 0 && (
                         <p className="text-sm text-muted-foreground mt-2">
                             Includes <span className="font-bold text-success">{formatCurrency(totalAnnualPotential)}</span> in potential annual savings.
                         </p>
                     )}
                 </div>
-
+                <CardTitle className="font-headline text-3xl">Advantage Illustrator</CardTitle>
+                <CardDescription className="text-lg">Visually compare the long-term costs and discover the value of restructuring.</CardDescription>
+            </CardHeader>
+            <CardContent>
                 <div className="grid lg:grid-cols-5 gap-8 items-center">
                     {/* Chart */}
                     <div className="lg:col-span-3 h-[400px]">
