@@ -53,6 +53,7 @@ interface AppState {
   useRewardsOffset: boolean;
   useTravelOffset: boolean;
   useOwnerAssistanceOffset: boolean;
+  useSavingsAdvantagePlan: boolean;
   showAiSummary: boolean;
   rewardsSpendHasBeenManuallySet: boolean;
 }
@@ -109,6 +110,7 @@ const initialCoreState: AppState = {
   useRewardsOffset: true,
   useTravelOffset: true,
   useOwnerAssistanceOffset: true,
+  useSavingsAdvantagePlan: true,
   showAiSummary: true,
   rewardsSpendHasBeenManuallySet: false,
 };
@@ -121,11 +123,9 @@ type Action =
   | { type: 'UPDATE_TRAVEL_SERVICES_CALCULATOR'; payload: Partial<TravelServicesCalculatorData> }
   | { type: 'RESET_STATE' }
   | { type: 'SET_PROJECTION_YEARS'; payload: 10 | 15 | 20 }
-  | { type: 'SET_USE_REWARDS_OFFSET', payload: boolean }
-  | { type: 'SET_USE_TRAVEL_OFFSET', payload: boolean }
-  | { type: 'SET_USE_OWNER_ASSISTANCE_OFFSET', payload: boolean }
-  | { type: 'SET_SHOW_AI_SUMMARY', payload: boolean }
-  | { type: 'SET_REWARDS_SPEND_MANUALLY_SET', payload: boolean };
+  | { type: 'SET_USE_SAVINGS_ADVANTAGE_PLAN'; payload: boolean }
+  | { type: 'SET_SHOW_AI_SUMMARY'; payload: boolean }
+  | { type: 'SET_REWARDS_SPEND_MANUALLY_SET'; payload: boolean };
 
 
 const AppContext = createContext<{ state: FullAppState; dispatch: React.Dispatch<Action> } | undefined>(undefined);
@@ -154,12 +154,14 @@ function appReducer(state: AppState, action: Action): AppState {
         return { ...initialCoreState };
     case 'SET_PROJECTION_YEARS':
         return { ...state, projectionYears: action.payload };
-    case 'SET_USE_REWARDS_OFFSET':
-        return { ...state, useRewardsOffset: action.payload };
-    case 'SET_USE_TRAVEL_OFFSET':
-        return { ...state, useTravelOffset: action.payload };
-    case 'SET_USE_OWNER_ASSISTANCE_OFFSET':
-        return { ...state, useOwnerAssistanceOffset: action.payload };
+    case 'SET_USE_SAVINGS_ADVANTAGE_PLAN':
+        return {
+            ...state,
+            useSavingsAdvantagePlan: action.payload,
+            useRewardsOffset: action.payload,
+            useTravelOffset: action.payload,
+            useOwnerAssistanceOffset: action.payload,
+        };
     case 'SET_SHOW_AI_SUMMARY':
         return { ...state, showAiSummary: action.payload };
     default:

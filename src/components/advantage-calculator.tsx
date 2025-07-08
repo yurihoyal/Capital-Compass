@@ -83,9 +83,7 @@ const AdvantageIllustrator = () => {
     const { 
         projectionYears, 
         costProjectionData,
-        useRewardsOffset,
-        useTravelOffset,
-        useOwnerAssistanceOffset,
+        useSavingsAdvantagePlan,
         rewardsCalculator,
         travelServicesCalculator,
         ownerAssistancePayout
@@ -107,26 +105,7 @@ const AdvantageIllustrator = () => {
         return finalYearData.currentCost - finalYearData.newCost;
     }, [costProjectionData]);
 
-
-    const SavingsToggle = ({ id, label, checked, onCheckedChange, value, tooltipText }: { id: string, label: string, checked: boolean, onCheckedChange: (checked: boolean) => void, value: number, tooltipText: string }) => (
-        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-2">
-                <Label htmlFor={id} className="text-base font-normal">{label}</Label>
-                <TooltipProvider>
-                    <UiTooltip>
-                        <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 cursor-pointer text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent><p>{tooltipText}</p></TooltipContent>
-                    </UiTooltip>
-                </TooltipProvider>
-            </div>
-            <div className="flex items-center gap-3">
-                <span className="text-base font-medium text-success">{formatCurrency(value)}</span>
-                <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
-            </div>
-        </div>
-    );
+    const totalAnnualSavings = (rewardsCalculator.annualCredit || 0) + (travelServicesCalculator.cashValueOfPoints || 0) + ownerAssistancePayout;
 
     return (
         <Card className="shadow-lg">
@@ -153,32 +132,42 @@ const AdvantageIllustrator = () => {
 
                     {/* Toggles & Gap */}
                     <div className="lg:col-span-2 space-y-4">
-                        <h3 className="text-xl font-semibold text-center mb-4">Apply Your Savings</h3>
+                        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <Label htmlFor="savings-advantage-toggle" className="text-base font-normal">Apply Your Savings Advantage Plan</Label>
+                             <TooltipProvider>
+                                <UiTooltip>
+                                    <TooltipTrigger asChild>
+                                        <Switch 
+                                            id="savings-advantage-toggle" 
+                                            checked={useSavingsAdvantagePlan}
+                                            onCheckedChange={(checked) => dispatch({ type: 'SET_USE_SAVINGS_ADVANTAGE_PLAN', payload: checked })}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Toggle to see the impact of all potential savings.</p>
+                                    </TooltipContent>
+                                </UiTooltip>
+                            </TooltipProvider>
+                        </div>
                         
-                        <SavingsToggle
-                            id="rewards-toggle"
-                            label="Rewards Credit Card"
-                            checked={useRewardsOffset}
-                            onCheckedChange={(checked) => dispatch({ type: 'SET_USE_REWARDS_OFFSET', payload: checked })}
-                            value={rewardsCalculator.annualCredit || 0}
-                            tooltipText="Annual statement credits from average card usage."
-                        />
-                         <SavingsToggle
-                            id="travel-toggle"
-                            label="Travel Services"
-                            checked={useTravelOffset}
-                            onCheckedChange={(checked) => dispatch({ type: 'SET_USE_TRAVEL_OFFSET', payload: checked })}
-                            value={travelServicesCalculator.cashValueOfPoints || 0}
-                            tooltipText="Cash value applied toward hotels, cruises, and car rentals."
-                        />
-                         <SavingsToggle
-                            id="assistance-toggle"
-                            label="Owner Assistance"
-                            checked={useOwnerAssistanceOffset}
-                            onCheckedChange={(checked) => dispatch({ type: 'SET_USE_OWNER_ASSISTANCE_OFFSET', payload: checked })}
-                            value={ownerAssistancePayout}
-                            tooltipText="Potential rental income through Capital’s Owner Assistance Program."
-                        />
+                        <div className="space-y-2 text-sm text-muted-foreground pl-3 border-l-2 ml-3">
+                             <p className="flex justify-between items-center">
+                                <span>Rewards Credit Card:</span> 
+                                <span className="font-medium text-foreground">{formatCurrency(rewardsCalculator.annualCredit || 0)}</span>
+                            </p>
+                            <p className="flex justify-between items-center">
+                                <span>Travel Services:</span> 
+                                <span className="font-medium text-foreground">{formatCurrency(travelServicesCalculator.cashValueOfPoints || 0)}</span>
+                            </p>
+                            <p className="flex justify-between items-center">
+                                <span>Owner Assistance:</span> 
+                                <span className="font-medium text-foreground">{formatCurrency(ownerAssistancePayout)}</span>
+                            </p>
+                            <p className="flex justify-between items-center font-bold text-base border-t pt-2 mt-2">
+                                <span>Total Annual Savings:</span>
+                                <span className="text-success">{formatCurrency(totalAnnualSavings)}</span>
+                            </p>
+                        </div>
 
                         <div className={`mt-6 p-4 rounded-lg text-center transition-all duration-300 ${regretGap > 0 ? 'bg-success/10 border-success/20' : 'bg-destructive/10 border-destructive/20'} border`}>
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
