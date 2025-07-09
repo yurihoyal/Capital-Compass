@@ -79,6 +79,9 @@ const OwnerProfileForm = () => {
   const ownershipType = watch('ownershipType');
 
 
+  useEffect(() => {
+    reset(state.ownerProfile);
+  }, [state.ownerProfile, reset]);
 
   const handleFormChange = () => {
       dispatch({ type: 'UPDATE_OWNER_PROFILE', payload: getValues() });
@@ -104,8 +107,8 @@ const OwnerProfileForm = () => {
         <CardDescription>Enter the owner's current details to begin the analysis.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form} key={JSON.stringify(state.ownerProfile)}>
-            <form onChange={handleFormChange}>
+        <Form {...form}>
+            <form onBlur={handleFormChange}>
                 <div className="grid lg:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <FormField

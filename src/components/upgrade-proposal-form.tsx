@@ -20,20 +20,16 @@ const RestructureProposalForm = () => {
     defaultValues: state.upgradeProposal,
   });
 
-  const { reset, control, watch } = form;
+  const { reset, control, getValues } = form;
 
   // Effect to update the form when the global state changes (e.g., on reset)
   useEffect(() => {
     reset(state.upgradeProposal);
   }, [state.upgradeProposal, reset]);
 
-  // Effect to update the global state whenever any form field changes
-  useEffect(() => {
-    const subscription = watch((value) => {
-      dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: value as UpgradeProposal });
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, dispatch]);
+  const handleFormChange = () => {
+    dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: getValues() as UpgradeProposal });
+  };
 
 
   return (
@@ -44,7 +40,7 @@ const RestructureProposalForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-8">
+          <form className="space-y-8" onBlur={handleFormChange}>
             <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                     <FormField
