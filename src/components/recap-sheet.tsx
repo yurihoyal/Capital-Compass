@@ -32,9 +32,7 @@ const RecapSheet = () => {
         const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
         const creditCardAnnualOffset = rewardsCalculator.annualCredit || 0;
         const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
-        const principalOnlyMonthlyPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
-            ? (upgradeProposal.totalAmountFinanced / upgradeProposal.newLoanTerm)
-            : 0;
+        const newMonthlyLoanPayment = Number(upgradeProposal.newMonthlyLoanPayment) || 0;
 
         return generateCostProjection(
             20, // Always calculate for 20 years for the recap sheet
@@ -45,7 +43,7 @@ const RecapSheet = () => {
             Number(ownerProfile.currentLoanTerm) || 0,
             (upgradeProposal.projectedMF || 0) * 12,
             upgradeProposal.newMfInflationRate,
-            principalOnlyMonthlyPayment,
+            newMonthlyLoanPayment,
             upgradeProposal.newLoanTerm,
             totalAnnualOffset
         );

@@ -238,16 +238,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (useTravelOffset) annualNewCostOffset += calculatedTravelServices.cashValueOfPoints || 0;
     if (useOwnerAssistanceOffset) annualNewCostOffset += ownerAssistancePayout || 0;
 
-    const principalOnlyMonthlyPayment = (upgradeProposal.totalAmountFinanced && upgradeProposal.newLoanTerm)
-        ? (upgradeProposal.totalAmountFinanced / upgradeProposal.newLoanTerm)
-        : 0;
+    const newMonthlyLoanPayment = Number(upgradeProposal.newMonthlyLoanPayment) || 0;
 
     const costProjectionData = generateCostProjection(
         projectionYears,
         (ownerProfile.maintenanceFee || 0) * 12, ownerProfile.mfInflationRate, ownerProfile.specialAssessment,
         Number(ownerProfile.currentMonthlyLoanPayment) || 0, Number(ownerProfile.currentLoanTerm) || 0,
         (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
-        principalOnlyMonthlyPayment,
+        newMonthlyLoanPayment,
         upgradeProposal.newLoanTerm,
         annualNewCostOffset
     );
@@ -267,7 +265,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (upgradeProposal.projectedMF || 0) * 12,
         upgradeProposal.newMfInflationRate,
         0, // No special assessment for new path
-        principalOnlyMonthlyPayment,
+        newMonthlyLoanPayment,
         upgradeProposal.newLoanTerm,
         annualNewCostOffset
     );
