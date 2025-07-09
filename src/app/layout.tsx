@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Capital Compass',
-  description: 'A tool for Capital Vacations sales agents.',
+  title: 'My Ownership Blueprint',
+  description: 'A tool to visualize timeshare ownership options.',
 };
 
 export default function RootLayout({

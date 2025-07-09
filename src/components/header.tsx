@@ -18,7 +18,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <Building className="h-8 w-8 text-primary" />
           <h1 className="text-2xl font-headline font-bold text-foreground">
-            Capital Compass
+            My Ownership Blueprint
           </h1>
         </div>
         <Button variant="outline" onClick={handleReset}>

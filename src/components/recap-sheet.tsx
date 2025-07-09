@@ -25,17 +25,14 @@ const RecapSheet = () => {
         window.print();
     };
 
-    // The costProjectionData from context is dependent on the selected projection years (10, 15, 20).
-    // The recap sheet always needs 10 and 20-year savings data, so we recalculate it here.
     const recapProjectionData = useMemo(() => {
-        // This logic mirrors the offset calculation in app-context.tsx to ensure consistency.
         const pointOffsetCredit = usePointOffset ? (totalPointsAfterUpgrade * 0.5 * POINT_VALUE_FOR_MF_OFFSET) : 0;
         const creditCardAnnualOffset = rewardsCalculator.annualCredit || 0;
         const totalAnnualOffset = pointOffsetCredit + creditCardAnnualOffset;
         const newMonthlyLoanPayment = Number(upgradeProposal.newMonthlyLoanPayment) || 0;
 
         return generateCostProjection(
-            20, // Always calculate for 20 years for the recap sheet
+            20, 
             (ownerProfile.maintenanceFee || 0) * 12,
             ownerProfile.mfInflationRate,
             ownerProfile.specialAssessment || 0,
@@ -63,7 +60,7 @@ const RecapSheet = () => {
             <div className="printable-area">
                 <Card className="print:shadow-none print:border-none">
                     <CardHeader className="text-center">
-                        <CardTitle className="font-headline text-3xl">Capital Compass Proposal</CardTitle>
+                        <CardTitle className="font-headline text-3xl">My Ownership Blueprint</CardTitle>
                         <CardDescription className="text-lg">For: {ownerProfile.ownerName || 'Valued Owner'}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
