@@ -20,18 +20,21 @@ const RestructureProposalForm = () => {
     defaultValues: state.upgradeProposal,
   });
 
-  const { reset, getValues, control } = form;
+  const { reset, control, watch } = form;
 
+  // Effect to update the form when the global state changes (e.g., on reset)
   useEffect(() => {
-    const upgradeProposalString = JSON.stringify(state.upgradeProposal);
-    if (upgradeProposalString !== JSON.stringify(getValues())) {
-      reset(state.upgradeProposal);
-    }
-  }, [state.upgradeProposal, reset, getValues]);
+    reset(state.upgradeProposal);
+  }, [state.upgradeProposal, reset]);
 
-  const handleFormChange = () => {
-    dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: getValues() });
-  };
+  // Effect to update the global state whenever any form field changes
+  useEffect(() => {
+    const subscription = watch((value) => {
+      dispatch({ type: 'UPDATE_UPGRADE_PROPOSAL', payload: value as UpgradeProposal });
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, dispatch]);
+
 
   return (
     <Card>
@@ -41,7 +44,7 @@ const RestructureProposalForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-8" onChange={handleFormChange}>
+          <form className="space-y-8">
             <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                     <FormField
@@ -51,7 +54,9 @@ const RestructureProposalForm = () => {
                             <FormItem>
                             <FormLabel>New Points Added</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="150000" {...field} />
+                                <Input type="number" placeholder="150000"
+                                    {...field} 
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -65,7 +70,9 @@ const RestructureProposalForm = () => {
                               <FormItem>
                               <FormLabel>Points from Converted Deeds</FormLabel>
                               <FormControl>
-                                  <Input type="number" placeholder="0" {...field} />
+                                  <Input type="number" placeholder="0"
+                                      {...field} 
+                                  />
                               </FormControl>
                               <FormMessage />
                               </FormItem>
@@ -79,7 +86,9 @@ const RestructureProposalForm = () => {
                             <FormItem>
                             <FormLabel>Projected Monthly Maintenance Fee ($)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="208" {...field} />
+                                <Input type="number" placeholder="208"
+                                    {...field} 
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -97,7 +106,7 @@ const RestructureProposalForm = () => {
                                     max={30}
                                     step={1}
                                     value={[field.value]}
-                                    onValueChange={(value) => field.onChange(value[0])}
+                                    onValueChange={(value) => { field.onChange(value[0]); }}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -113,7 +122,9 @@ const RestructureProposalForm = () => {
                             <FormItem>
                             <FormLabel>Total Amount Financed ($)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="20000" {...field} />
+                                <Input type="number" placeholder="20000"
+                                    {...field} 
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -126,7 +137,9 @@ const RestructureProposalForm = () => {
                             <FormItem>
                             <FormLabel>New Monthly Loan Payment ($)</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="250" {...field} />
+                                <Input type="number" placeholder="250"
+                                    {...field} 
+                                />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -137,8 +150,8 @@ const RestructureProposalForm = () => {
                         name="newLoanTerm"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>New Loan Term</FormLabel>
-                             <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
+                             <FormLabel>New Loan Term</FormLabel>
+                             <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
                                 <FormControl>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a loan term" />

@@ -78,12 +78,6 @@ const OwnerProfileForm = () => {
   const { watch, control, setValue, reset, getValues } = form;
   const ownershipType = watch('ownershipType');
 
-  useEffect(() => {
-    const ownerProfileString = JSON.stringify(state.ownerProfile);
-    if (ownerProfileString !== JSON.stringify(getValues())) {
-      reset(state.ownerProfile);
-    }
-  }, [state.ownerProfile, reset, getValues]);
 
 
   const handleFormChange = () => {
@@ -110,7 +104,7 @@ const OwnerProfileForm = () => {
         <CardDescription>Enter the owner's current details to begin the analysis.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
+        <Form {...form} key={JSON.stringify(state.ownerProfile)}>
             <form onChange={handleFormChange}>
                 <div className="grid lg:grid-cols-2 gap-8">
                     <div className="space-y-4">
