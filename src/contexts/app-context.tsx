@@ -182,7 +182,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     useTravelOffset,
     useOwnerAssistanceOffset,
   } = state;
-
+  
   const calculatedState = useMemo(() => {
     // --- Rewards Calculation ---
     const { monthlySpend } = rewardsCalculator;
@@ -247,7 +247,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (upgradeProposal.projectedMF || 0) * 12, upgradeProposal.newMfInflationRate, 
         newMonthlyLoanPayment,
         upgradeProposal.newLoanTerm,
-        annualNewCostOffset
+        0 // Pass 0 for offset to exclude it from the base cost calculation in generateCostProjection
     );
 
      const { projection: currentPathProjection, summary: currentPathSummary } = generateCurrentPathProjection(
